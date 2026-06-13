@@ -49,6 +49,15 @@ Start the development server:
 
 Bash
 npm run dev
+
+Environment configuration
+The frontend reads an optional Vite environment variable `VITE_API_BASE` to point the app at a backend other than the default `http://localhost:8080`.
+
+Create a `.env` (or copy `.env.example`) in the project root if you need to override the backend base URL:
+
+```
+VITE_API_BASE=http://localhost:8080
+```
 📈 Future Roadmap
 [ ] Implement JWT Authentication for multiple users.
 
