@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
+import Sidebar from './Sidebar'
+import MetricsRow from './MetricsRow'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 
 const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
-    // Existing state
+
     const [, setHistory] = useState([])
     const [weight, setWeight] = useState("")
     const [goal, setGoal] = useState("MUSCLE_GAIN")
@@ -13,10 +15,10 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
     const [, setAiError] = useState("")
     const [sessionMessage, setSessionMessage] = useState("")
 
-    // New state for Exercise Logs
     const [exerciseLogs, setExerciseLogs] = useState([])
     const [exerciseForm, setExerciseForm] = useState({ exerciseName: '', weight: '', sets: '', reps: '' })
     const [logMessage, setLogMessage] = useState("")
+    const [stats, setStats] = useState({ workoutStreak: 0, weeklyVolume: 0, recoveryScore: 0, currentWeight: 0 })
 
     const fetchHistory = useCallback(async () => {
         try {
@@ -49,14 +51,26 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
             console.error(error)
         }
     }, [activeUserId, jwtToken])
+    const fetchStats = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE}/api/users/${activeUserId}/stats`, {
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
+            })
+            if (response.ok) {
+                const data = await response.json()
+                setStats(data)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }, [activeUserId, jwtToken])
 
     useEffect(() => {
-        // fetchHistory and fetchExerciseLogs update state; call them asynchronously
-        // to avoid triggering the react-hooks/set-state-in-effect lint rule.
-        /* eslint-disable-next-line react-hooks/set-state-in-effect */
+
         fetchHistory()
         fetchExerciseLogs()
-    }, [fetchHistory, fetchExerciseLogs])
+        fetchStats() // <-- 3a. ADD THIS LINE
+    }, [fetchHistory, fetchExerciseLogs, fetchStats]) // <-- 3b. ADD 'fetchStats' TO THIS ARRAY
 
     const generateAIPlan = async () => {
         setIsGenerating(true)
@@ -118,7 +132,6 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
 
     const handleLogWorkout = async (e) => {
         e.preventDefault()
-        // Guard: ensure we have a valid token and user id before attempting
         if (!jwtToken || !activeUserId) {
             setLogMessage("You must be logged in to save a lift.")
             return
@@ -138,9 +151,6 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                 })
             })
 
-            // If the server returns 403 (forbidden / invalid session) avoid force-logging
-            // the user out immediately from this action. Show a friendly message instead
-            // so the user doesn't get bounced back to the login screen unexpectedly.
             if (response.status === 403) {
                 setLogMessage("Session expired.")
                 setSessionMessage("Session expired.")
@@ -150,7 +160,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
             if (response.ok) {
                 setLogMessage("Lift logged successfully!")
                 setExerciseForm({ exerciseName: '', weight: '', sets: '', reps: '' })
-                fetchExerciseLogs() // Instantly refresh the list
+                fetchExerciseLogs()
                 setTimeout(() => setLogMessage(""), 3000)
             } else {
                 setLogMessage("Failed to log lift.")
@@ -161,35 +171,46 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
         }
     }
 
+
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center py-10 px-6 font-sans">
-            <div className="bg-gray-900 border border-gray-800 p-8 rounded-2xl shadow-2xl max-w-4xl w-full">
+        <div className="flex min-h-screen bg-[#080C10] font-sans">
+
+            {/* The New Sidebar */}
+            <Sidebar />
+
+            {/* Main Content Area */}
+            <div className="flex-1 overflow-y-auto p-8">
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-6">
+                <div className="flex justify-between items-start mb-8 border-b border-gray-800 pb-6">
                     <div>
-                        <h1 className="text-4xl font-extrabold text-blue-500 tracking-tight">FitTrack AI</h1>
-                        <p className="text-gray-400 mt-1">Your AI-powered lifting & nutrition hub.</p>
+                        <h1 className="text-3xl font-bold text-white mb-1">Good morning, Himanshu 💪</h1>
+                        <p className="text-gray-400 text-sm">Ready to crush your goals today?</p>
                     </div>
                     <button onClick={onLogout} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 px-4 py-2 rounded-lg font-bold transition">
                         Logout
                     </button>
                 </div>
 
-                {/* Session message (shown when token expires) */}
+                {/* Session message */}
                 {sessionMessage && (
                     <div className="mb-4">
-                        <p className="text-red-400 text-sm text-center">{sessionMessage}</p>
+                        <p className="text-red-400 text-sm">{sessionMessage}</p>
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {/* The New Metrics Row */}
+                <MetricsRow stats={stats} />
+
+
+                {/* Your Existing Functional Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
 
                     {/* Left Column: Stats & Logging */}
                     <div className="space-y-10">
 
                         {/* Update Profile Stats */}
-                        <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Update Body Stats</h2>
                             <div className="flex gap-4">
                                 <div className="w-1/2">
@@ -198,7 +219,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                         type="number"
                                         value={weight}
                                         onChange={(e) => setWeight(e.target.value)}
-                                        className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
                                     />
                                 </div>
                                 <div className="w-1/2">
@@ -206,7 +227,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                     <select
                                         value={goal}
                                         onChange={(e) => setGoal(e.target.value)}
-                                        className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
                                     >
                                         <option value="MUSCLE_GAIN">Muscle Gain</option>
                                         <option value="WEIGHT_LOSS">Weight Loss</option>
@@ -221,9 +242,9 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                         </div>
 
                         {/* Log a Lift Form */}
-                        <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Log a Lift</h2>
-                            <form onSubmit={handleLogWorkout} className="space-y-4">
+                            <form onSubmit={handleLogWorkout} className="space-y-4" autoComplete="off">
                                 <div>
                                     <label className="text-xs text-gray-500 uppercase font-bold">Exercise Name</label>
                                     <input
@@ -232,7 +253,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                         placeholder="e.g. Incline Dumbbell Press"
                                         value={exerciseForm.exerciseName}
                                         onChange={(e) => setExerciseForm({...exerciseForm, exerciseName: e.target.value})}
-                                        className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
                                     />
                                 </div>
                                 <div className="flex gap-4">
@@ -244,7 +265,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                             required
                                             value={exerciseForm.weight}
                                             onChange={(e) => setExerciseForm({...exerciseForm, weight: e.target.value})}
-                                            className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                            className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
                                         />
                                     </div>
                                     <div className="w-1/3">
@@ -254,7 +275,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                             required
                                             value={exerciseForm.sets}
                                             onChange={(e) => setExerciseForm({...exerciseForm, sets: e.target.value})}
-                                            className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                            className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
                                         />
                                     </div>
                                     <div className="w-1/3">
@@ -264,11 +285,11 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                             required
                                             value={exerciseForm.reps}
                                             onChange={(e) => setExerciseForm({...exerciseForm, reps: e.target.value})}
-                                            className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                            className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
                                         />
                                     </div>
                                 </div>
-                                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2.5 font-bold transition">
+                                <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-lg py-2.5 font-bold transition">
                                     Save Lift
                                 </button>
                                 {logMessage && (
@@ -283,16 +304,16 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                     <div className="space-y-10">
 
                         {/* AI Coach */}
-                        <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-bold text-white flex items-center gap-2">🧠 AI Coach</h2>
-                                <button onClick={generateAIPlan} disabled={isGenerating} className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition disabled:opacity-50">
+                                <button onClick={generateAIPlan} disabled={isGenerating} className="bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-bold py-1.5 px-3 rounded-lg transition disabled:opacity-50">
                                     {isGenerating ? "Thinking..." : "Generate Plan"}
                                 </button>
                             </div>
-                            <div className="bg-gray-900 p-4 rounded-lg border border-gray-800 min-h-[120px] max-h-[250px] overflow-y-auto">
+                            <div className="bg-[#161B22] p-4 rounded-xl border border-gray-800 min-h-[120px] max-h-[250px] overflow-y-auto">
                                 {isGenerating ? (
-                                    <p className="text-blue-500 text-sm text-center py-4 animate-pulse">Analyzing...</p>
+                                    <p className="text-emerald-400 text-sm text-center py-4 animate-pulse">Analyzing...</p>
                                 ) : aiPlan ? (
                                     <p className="text-gray-300 text-sm whitespace-pre-wrap">{aiPlan}</p>
                                 ) : (
@@ -302,17 +323,16 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                         </div>
 
                         {/* Recent Lifts Feed */}
-                        <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Recent Lifts</h2>
                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
                                 {exerciseLogs.length === 0 ? (
                                     <p className="text-gray-600 italic text-sm">No lifts logged yet.</p>
                                 ) : (
-                                    // Reversing the array so the newest lifts show up at the top
                                     [...exerciseLogs].reverse().map((log) => (
-                                        <div key={log.id} className="bg-gray-900 border border-gray-800 p-3 rounded-lg flex justify-between items-center">
+                                        <div key={log.id} className="bg-[#161B22] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
                                             <div>
-                                                <p className="text-blue-400 font-bold text-sm">{log.exerciseName}</p>
+                                                <p className="text-emerald-400 font-bold text-sm">{log.exerciseName}</p>
                                                 <p className="text-gray-400 text-xs mt-0.5">{new Date(log.dateLogged).toLocaleDateString()}</p>
                                             </div>
                                             <div className="text-right">
