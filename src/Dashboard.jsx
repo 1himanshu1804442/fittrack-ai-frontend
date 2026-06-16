@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Sidebar from './Sidebar'
 import MetricsRow from './MetricsRow'
+import ReactMarkdown from 'react-markdown'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 
@@ -9,6 +10,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
     const [, setHistory] = useState([])
     const [weight, setWeight] = useState("")
     const [goal, setGoal] = useState("MUSCLE_GAIN")
+    const [trainingDays, setTrainingDays] = useState("6")
     const [message, setMessage] = useState("")
     const [aiPlan, setAiPlan] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
@@ -51,6 +53,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
             console.error(error)
         }
     }, [activeUserId, jwtToken])
+
     const fetchStats = useCallback(async () => {
         try {
             const response = await fetch(`${API_BASE}/api/users/${activeUserId}/stats`, {
@@ -66,11 +69,10 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
     }, [activeUserId, jwtToken])
 
     useEffect(() => {
-
         fetchHistory()
         fetchExerciseLogs()
-        fetchStats() // <-- 3a. ADD THIS LINE
-    }, [fetchHistory, fetchExerciseLogs, fetchStats]) // <-- 3b. ADD 'fetchStats' TO THIS ARRAY
+        fetchStats()
+    }, [fetchHistory, fetchExerciseLogs, fetchStats])
 
     const generateAIPlan = async () => {
         setIsGenerating(true)
@@ -109,7 +111,8 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                 },
                 body: JSON.stringify({
                     bodyWeight: Number(weight),
-                    goal: goal
+                    goal: goal,
+                    trainingDaysPerWeek: parseInt(trainingDays)
                 })
             })
 
@@ -161,6 +164,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                 setLogMessage("Lift logged successfully!")
                 setExerciseForm({ exerciseName: '', weight: '', sets: '', reps: '' })
                 fetchExerciseLogs()
+                fetchStats()
                 setTimeout(() => setLogMessage(""), 3000)
             } else {
                 setLogMessage("Failed to log lift.")
@@ -175,13 +179,10 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
     return (
         <div className="flex min-h-screen bg-[#080C10] font-sans">
 
-            {/* The New Sidebar */}
             <Sidebar />
 
-            {/* Main Content Area */}
             <div className="flex-1 overflow-y-auto p-8">
 
-                {/* Header */}
                 <div className="flex justify-between items-start mb-8 border-b border-gray-800 pb-6">
                     <div>
                         <h1 className="text-3xl font-bold text-white mb-1">Good morning, Himanshu 💪</h1>
@@ -192,28 +193,22 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                     </button>
                 </div>
 
-                {/* Session message */}
                 {sessionMessage && (
                     <div className="mb-4">
                         <p className="text-red-400 text-sm">{sessionMessage}</p>
                     </div>
                 )}
 
-                {/* The New Metrics Row */}
                 <MetricsRow stats={stats} />
 
-
-                {/* Your Existing Functional Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
 
-                    {/* Left Column: Stats & Logging */}
                     <div className="space-y-10">
 
-                        {/* Update Profile Stats */}
                         <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Update Body Stats</h2>
                             <div className="flex gap-4">
-                                <div className="w-1/2">
+                                <div className="w-1/3">
                                     <label className="text-xs text-gray-500 uppercase font-bold">Weight (kg)</label>
                                     <input
                                         type="number"
@@ -222,7 +217,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                         className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
                                     />
                                 </div>
-                                <div className="w-1/2">
+                                <div className="w-1/3">
                                     <label className="text-xs text-gray-500 uppercase font-bold">Goal</label>
                                     <select
                                         value={goal}
@@ -234,6 +229,19 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                         <option value="MAINTENANCE">Maintenance</option>
                                     </select>
                                 </div>
+                                <div className="w-1/3">
+                                    <label className="text-xs text-gray-500 uppercase font-bold">Days/Week</label>
+                                    <select
+                                        value={trainingDays}
+                                        onChange={(e) => setTrainingDays(e.target.value)}
+                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                    >
+                                        <option value="3">3 Days</option>
+                                        <option value="4">4 Days</option>
+                                        <option value="5">5 Days</option>
+                                        <option value="6">6 Days</option>
+                                    </select>
+                                </div>
                             </div>
                             <button onClick={handleUpdateProfile} className="w-full mt-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg py-2.5 font-bold transition">
                                 Save Stats
@@ -241,7 +249,6 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                             {message && <p className="text-green-400 text-sm mt-2 text-center">{message}</p>}
                         </div>
 
-                        {/* Log a Lift Form */}
                         <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Log a Lift</h2>
                             <form onSubmit={handleLogWorkout} className="space-y-4" autoComplete="off">
@@ -300,10 +307,8 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
 
                     </div>
 
-                    {/* Right Column: Lifts & AI Coach */}
                     <div className="space-y-10">
 
-                        {/* AI Coach */}
                         <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-bold text-white flex items-center gap-2">🧠 AI Coach</h2>
@@ -315,14 +320,24 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                                 {isGenerating ? (
                                     <p className="text-emerald-400 text-sm text-center py-4 animate-pulse">Analyzing...</p>
                                 ) : aiPlan ? (
-                                    <p className="text-gray-300 text-sm whitespace-pre-wrap">{aiPlan}</p>
+                                    <div className="text-gray-300 text-sm space-y-4">
+                                        <ReactMarkdown
+                                            components={{
+                                                strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
+                                                ul: ({ children }) => <ul className="list-disc pl-5 space-y-2 mb-4">{children}</ul>,
+                                                li: ({ children }) => <li className="marker:text-emerald-500">{children}</li>,
+                                                p: ({ children }) => <p className="mb-2">{children}</p>
+                                            }}
+                                        >
+                                            {aiPlan || ""}
+                                        </ReactMarkdown>
+                                    </div>
                                 ) : (
                                     <p className="text-gray-600 italic text-sm text-center py-4">Click generate for a tailored plan.</p>
                                 )}
                             </div>
                         </div>
 
-                        {/* Recent Lifts Feed */}
                         <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Recent Lifts</h2>
                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
