@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { toast } from 'react-hot-toast'
 import { Menu } from 'lucide-react'
 
-const API_BASE = 'https://fittrack-ai-backend-production.up.railway.app'
+const API_BASE = ''
 
 const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView }) => {
 

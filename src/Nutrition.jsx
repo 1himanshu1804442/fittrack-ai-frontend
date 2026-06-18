@@ -3,7 +3,7 @@ import Sidebar from './Sidebar'
 import { Menu, Search, Plus, Trash2, Settings, X, Save } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
-const API_BASE = 'https://fittrack-ai-backend-production.up.railway.app'
+const API_BASE = ''
 
 const Nutrition = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)

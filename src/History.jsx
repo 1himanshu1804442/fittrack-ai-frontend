@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { Menu, Calendar, Dumbbell, BrainCircuit, ChevronDown, ChevronUp, Trash2, Edit2, X, Save } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
-const API_BASE = 'https://fittrack-ai-backend-production.up.railway.app';
+const API_BASE = '';
 
 const History = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView }) => {
     const [activeTab, setActiveTab] = useState('lifts'); // 'lifts' or 'ai'

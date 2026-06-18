@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Sidebar from './Sidebar'
 import { Menu } from 'lucide-react'
 
-const API_BASE = 'https://fittrack-ai-backend-production.up.railway.app'
+const API_BASE = ''
 const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6', '#6366f1', '#eab308', '#f43f5e']
 
 const Analytics = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView }) => {

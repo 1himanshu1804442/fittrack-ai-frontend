@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 
-const API_BASE = 'https://fittrack-ai-backend-production.up.railway.app'
+const API_BASE = ''
 
 const Register = ({ onSwitchToLogin }) => {
     const [username, setUsername] = useState("")

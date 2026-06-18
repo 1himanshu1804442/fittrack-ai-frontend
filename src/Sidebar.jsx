@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Settings } from 'lucide-react';
 
-const API_BASE = 'https://fittrack-ai-backend-production.up.railway.app';
+const API_BASE = '';
 
 const Sidebar = ({ currentView, setCurrentView, isMobileMenuOpen, setIsMobileMenuOpen }) => {
     const [userData, setUserData] = useState(null);
