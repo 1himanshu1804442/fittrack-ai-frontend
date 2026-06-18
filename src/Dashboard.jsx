@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react'
 import Sidebar from './Sidebar'
 import MetricsRow from './MetricsRow'
 import ReactMarkdown from 'react-markdown'
+import Analytics from './Analytics'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 
-const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
+const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView }) => {
 
     const [, setHistory] = useState([])
     const [weight, setWeight] = useState("")
@@ -21,6 +22,9 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
     const [exerciseForm, setExerciseForm] = useState({ exerciseName: '', weight: '', sets: '', reps: '' })
     const [logMessage, setLogMessage] = useState("")
     const [stats, setStats] = useState({ workoutStreak: 0, weeklyVolume: 0, recoveryScore: 0, currentWeight: 0 })
+
+    const [editingLogId, setEditingLogId] = useState(null)
+    const [editLogForm, setEditLogForm] = useState({ exerciseName: '', weight: '', sets: '', reps: '' })
 
     const fetchHistory = useCallback(async () => {
         try {
@@ -38,16 +42,16 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
         } catch (error) {
             console.error(error)
         }
-    }, [activeUserId, jwtToken, onLogout])
+    }, [activeUserId, jwtToken])
 
     const fetchExerciseLogs = useCallback(async () => {
         try {
-            const response = await fetch(`${API_BASE}/api/users/${activeUserId}/exercises`, {
+            const response = await fetch(`${API_BASE}/api/users/${activeUserId}/exercises?page=0&size=5`, {
                 headers: { 'Authorization': `Bearer ${jwtToken}` }
             })
             if (response.ok) {
                 const data = await response.json()
-                setExerciseLogs(data)
+                setExerciseLogs(data.content || [])
             }
         } catch (error) {
             console.error(error)
@@ -69,9 +73,14 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
     }, [activeUserId, jwtToken])
 
     useEffect(() => {
-        fetchHistory()
-        fetchExerciseLogs()
-        fetchStats()
+        // Defer initial fetches to avoid synchronous setState in the effect
+        // which can trigger cascading renders in some ESLint configurations.
+        const id = setTimeout(() => {
+            fetchHistory()
+            fetchExerciseLogs()
+            fetchStats()
+        }, 0)
+        return () => clearTimeout(id)
     }, [fetchHistory, fetchExerciseLogs, fetchStats])
 
     const generateAIPlan = async () => {
@@ -176,10 +185,56 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
     }
 
 
+    const handleDeleteLift = async (id) => {
+        if (!confirm('Are you sure you want to delete this lift?')) return;
+        try {
+            const response = await fetch(`${API_BASE}/api/users/${activeUserId}/exercises/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
+            });
+            if (response.ok) {
+                fetchExerciseLogs();
+                fetchStats();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const startEditLift = (log) => {
+        setEditingLogId(log.id);
+        setEditLogForm({
+            exerciseName: log.exerciseName,
+            weight: log.weight,
+            sets: log.sets,
+            reps: log.reps
+        });
+    }
+
+    const handleSaveEditLift = async () => {
+        try {
+            const response = await fetch(`${API_BASE}/api/users/${activeUserId}/exercises/${editingLogId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwtToken}`
+                },
+                body: JSON.stringify(editLogForm)
+            });
+            if (response.ok) {
+                setEditingLogId(null);
+                fetchExerciseLogs();
+                fetchStats();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <div className="flex min-h-screen bg-[#080C10] font-sans">
 
-            <Sidebar />
+            <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
 
             <div className="flex-1 overflow-y-auto p-8">
 
@@ -338,22 +393,62 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                             </div>
                         </div>
 
+
                         <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Recent Lifts</h2>
                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
                                 {exerciseLogs.length === 0 ? (
                                     <p className="text-gray-600 italic text-sm">No lifts logged yet.</p>
                                 ) : (
-                                    [...exerciseLogs].reverse().map((log) => (
-                                        <div key={log.id} className="bg-[#161B22] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
-                                            <div>
-                                                <p className="text-emerald-400 font-bold text-sm">{log.exerciseName}</p>
-                                                <p className="text-gray-400 text-xs mt-0.5">{new Date(log.dateLogged).toLocaleDateString()}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-white font-bold">{log.weight} kg</p>
-                                                <p className="text-gray-500 text-xs">{log.sets} sets × {log.reps} reps</p>
-                                            </div>
+                                    exerciseLogs.map((log) => (
+                                        <div key={log.id} className="bg-[#161B22] border border-gray-800 p-4 rounded-xl flex justify-between items-center flex-wrap gap-4">
+                                            {editingLogId === log.id ? (
+                                                <div className="flex-1 flex gap-3 items-center w-full">
+                                                    <input 
+                                                        className="bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white flex-1 focus:outline-none focus:border-blue-500"
+                                                        value={editLogForm.exerciseName}
+                                                        onChange={e => setEditLogForm({...editLogForm, exerciseName: e.target.value})}
+                                                        placeholder="Name"
+                                                    />
+                                                    <input 
+                                                        type="number" className="w-16 bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
+                                                        value={editLogForm.weight}
+                                                        onChange={e => setEditLogForm({...editLogForm, weight: e.target.value})}
+                                                        placeholder="kg"
+                                                    />
+                                                    <input 
+                                                        type="number" className="w-16 bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
+                                                        value={editLogForm.sets}
+                                                        onChange={e => setEditLogForm({...editLogForm, sets: e.target.value})}
+                                                        placeholder="Sets"
+                                                    />
+                                                    <input 
+                                                        type="number" className="w-16 bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
+                                                        value={editLogForm.reps}
+                                                        onChange={e => setEditLogForm({...editLogForm, reps: e.target.value})}
+                                                        placeholder="Reps"
+                                                    />
+                                                    <button onClick={handleSaveEditLift} className="text-emerald-400 font-bold hover:text-emerald-300">Save</button>
+                                                    <button onClick={() => setEditingLogId(null)} className="text-gray-400 font-bold hover:text-white">Cancel</button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div>
+                                                        <p className="text-emerald-400 font-bold text-sm">{log.exerciseName}</p>
+                                                        <p className="text-gray-400 text-xs mt-0.5">{new Date(log.dateLogged).toLocaleDateString()}</p>
+                                                    </div>
+                                                    <div className="text-right flex items-center gap-6">
+                                                        <div>
+                                                            <p className="text-white font-bold">{log.weight} kg</p>
+                                                            <p className="text-gray-500 text-xs">{log.sets} sets × {log.reps} reps</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <button onClick={() => startEditLift(log)} className="text-blue-400 hover:text-blue-300 transition" title="Edit">✏️</button>
+                                                            <button onClick={() => handleDeleteLift(log.id)} className="text-red-400 hover:text-red-300 transition" title="Delete">🗑️</button>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     ))
                                 )}
@@ -361,6 +456,11 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout }) => {
                         </div>
 
                     </div>
+                </div>
+                
+                {/* Full Width Analytics Section Below */}
+                <div className="mt-10">
+                    <Analytics jwtToken={jwtToken} activeUserId={activeUserId} />
                 </div>
             </div>
         </div>

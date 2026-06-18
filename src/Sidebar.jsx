@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Sidebar = () => {
+const Sidebar = ({ currentView, setCurrentView }) => {
     return (
         <div className="w-60 bg-[#0D1117] border-r border-gray-800 flex flex-col h-screen sticky top-0">
             <div className="p-6 border-b border-gray-800 flex items-center gap-3">
@@ -16,16 +16,19 @@ const Sidebar = () => {
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 py-2">
                     Main
                 </div>
-                <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 font-medium cursor-pointer">
+                <div onClick={() => setCurrentView('dashboard')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'dashboard' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
                     <span>▣</span> Dashboard
                 </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-[#1C2128] hover:text-white cursor-pointer transition-colors">
                     <span>◈</span> AI Workout
                 </div>
+                <div onClick={() => { window.location.href = '/analytics' }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-[#1C2128] hover:text-white cursor-pointer transition-colors">
+                    <span>📈</span> Analytics
+                </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-[#1C2128] hover:text-white cursor-pointer transition-colors">
                     <span>◉</span> Pose Tracker
                 </div>
-                <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-[#1C2128] hover:text-white cursor-pointer transition-colors">
+                <div onClick={() => setCurrentView('history')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'history' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
                     <span>◫</span> History
                 </div>
 
