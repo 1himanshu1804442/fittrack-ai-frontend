@@ -14,10 +14,11 @@ const Register = ({ onSwitchToLogin }) => {
     const handleRegister = async (e) => {
         e.preventDefault()
         setIsRegistering(true)
-        setIsRegistering(true)
 
         try {
-            const response = await fetch(`${API_BASE}/api/users/register`, {
+            const url = `${API_BASE}/api/users/register`
+            console.log('Registering to:', url)
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -28,12 +29,16 @@ const Register = ({ onSwitchToLogin }) => {
                 })
             })
 
-            if (!response.ok) throw new Error("Registration failed")
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Server error ${response.status}: ${errorText}`)
+            }
 
             toast.success("Account created successfully! Please login.")
             onSwitchToLogin()
-        } catch {
-            toast.error("Registration failed. Username might be taken.")
+        } catch (err) {
+            console.error('Registration error:', err)
+            toast.error(`Error: ${err.message}`, { duration: 8000 })
         } finally {
             setIsRegistering(false)
         }
