@@ -417,7 +417,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
 
                         <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-lg font-bold text-white flex items-center gap-2">🧠 AI Coach</h2>
+                                <h2 className="text-lg font-bold text-white flex items-center gap-2">⚡ AI Workout Generator</h2>
                                 <button onClick={generateAIPlan} disabled={isGenerating} className="bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-bold py-1.5 px-3 rounded-lg transition disabled:opacity-50">
                                     {isGenerating ? "Thinking..." : "Generate Plan"}
                                 </button>
