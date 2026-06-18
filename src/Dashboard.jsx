@@ -17,6 +17,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
     const [isGenerating, setIsGenerating] = useState(false)
     const [, setAiError] = useState("")
 
+    const [userData, setUserData] = useState(null)
     const [exerciseLogs, setExerciseLogs] = useState([])
     const [quickLogData, setQuickLogData] = useState([])
     const [exerciseForm, setExerciseForm] = useState({ exerciseName: '', weight: '', sets: '', reps: '' })
@@ -87,14 +88,32 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
         }
     }, [activeUserId, jwtToken])
 
+    const fetchUserData = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE}/api/users/${activeUserId}`, {
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
+            })
+            if (response.ok) {
+                const data = await response.json()
+                setUserData(data)
+                if (!weight) setWeight(data.bodyWeight || "")
+                if (data.goal) setGoal(data.goal)
+                if (data.trainingDaysPerWeek) setTrainingDays(data.trainingDaysPerWeek.toString())
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }, [activeUserId, jwtToken, weight])
+
     useEffect(() => {
         if (jwtToken && activeUserId) {
+            fetchUserData()
             fetchStats()
             fetchExerciseLogs()
             fetchQuickLogData()
             fetchHistory()
         }
-    }, [jwtToken, activeUserId, fetchStats, fetchExerciseLogs, fetchQuickLogData, fetchHistory])
+    }, [jwtToken, activeUserId, fetchUserData, fetchStats, fetchExerciseLogs, fetchQuickLogData, fetchHistory])
 
     const generateAIPlan = async () => {
         setIsGenerating(true)
@@ -261,7 +280,9 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
 
                 <div className="flex justify-between items-start mb-8 border-b border-gray-800 pb-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-white mb-1">Good morning, Himanshu 💪</h1>
+                        <h1 className="text-3xl font-bold text-white mb-1">
+                            Good morning{userData?.username ? `, ${userData.username}` : ''} 💪
+                        </h1>
                         <p className="text-gray-400 text-sm">Ready to crush your goals today?</p>
                     </div>
                     <button onClick={onLogout} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 px-4 py-2 rounded-lg font-bold transition">
