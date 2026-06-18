@@ -6,6 +6,7 @@ import Dashboard from './Dashboard'
 import History from './History'
 import Analytics from './Analytics'
 import AIWorkout from './AIWorkout'
+import AICoach from './AICoach'
 import Nutrition from './Nutrition'
 
 function App() {
@@ -38,6 +39,8 @@ function App() {
           <Analytics jwtToken={jwtToken} activeUserId={activeUserId} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />
         ) : currentView === 'ai-workout' ? (
           <AIWorkout jwtToken={jwtToken} activeUserId={activeUserId} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />
+        ) : currentView === 'ai-coach' ? (
+          <AICoach jwtToken={jwtToken} activeUserId={activeUserId} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />
         ) : currentView === 'nutrition' ? (
           <Nutrition jwtToken={jwtToken} activeUserId={activeUserId} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />
         ) : (

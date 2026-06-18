@@ -58,6 +58,9 @@ const Sidebar = ({ currentView, setCurrentView, isMobileMenuOpen, setIsMobileMen
                     <div onClick={() => setCurrentView('ai-workout')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'ai-workout' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
                         <span>◈</span> AI Workout
                     </div>
+                    <div onClick={() => setCurrentView('ai-coach')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'ai-coach' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
+                        <span>🧠</span> AI Coach
+                    </div>
                     <div onClick={() => setCurrentView('nutrition')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'nutrition' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
                         <span>🍎</span> Nutrition
                     </div>

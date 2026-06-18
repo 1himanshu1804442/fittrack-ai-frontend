@@ -21,7 +21,10 @@ const Login = ({ onLoginSuccess, onSwitchToRegister }) => {
                 body: JSON.stringify({ username, password })
             })
 
-            if (!response.ok) throw new Error("Invalid credentials")
+            if (!response.ok) {
+                const errorMsg = await response.text();
+                throw new Error(errorMsg || "Invalid credentials");
+            }
 
             const data = await response.json()
             const token = data.jwt
@@ -37,7 +40,7 @@ const Login = ({ onLoginSuccess, onSwitchToRegister }) => {
 
             onLoginSuccess(token, userId)
         } catch (error) {
-            toast.error("Login failed. Check your username and password.")
+            toast.error(`Login failed: ${error.message}`)
         } finally {
             setIsLoggingIn(false)
         }
