@@ -26,6 +26,9 @@ const MetricCard = ({ title, value, subtext, icon, trendIcon, trendText, iconCol
 }
 
 const MetricsRow = ({ stats }) => {
+    const hasVolume = stats.weeklyVolume > 0
+    const hasWeight = stats.currentWeight > 0
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <MetricCard
@@ -33,33 +36,33 @@ const MetricsRow = ({ stats }) => {
                 value={`${stats.workoutStreak} days`}
                 icon="🔥"
                 iconColor="bg-emerald-500 text-emerald-400"
-                subtext="Best: 28 days"
+                trendText={stats.workoutStreak > 0 ? "Keep it going!" : "Log a lift to start"}
+                trendColor={stats.workoutStreak > 0 ? "text-emerald-400" : "text-gray-500"}
             />
             <MetricCard
                 title="Weekly Volume"
                 value={`${stats.weeklyVolume} kg`}
                 icon="📊"
                 iconColor="bg-emerald-500 text-emerald-400"
-                trendIcon="↑"
-                trendText="12% from last week"
-                trendColor="text-emerald-400"
+                trendIcon={hasVolume ? "↑" : null}
+                trendText={hasVolume ? "This week's total" : "No lifts this week"}
+                trendColor={hasVolume ? "text-emerald-400" : "text-gray-500"}
             />
             <MetricCard
                 title="Recovery Score"
                 value={`${stats.recoveryScore}%`}
                 icon="💚"
                 iconColor="bg-emerald-500 text-emerald-400"
-                trendText="Good to train"
-                trendColor="text-emerald-400"
+                trendText={stats.recoveryScore >= 70 ? "Good to train" : stats.recoveryScore >= 40 ? "Light session recommended" : "Rest day advised"}
+                trendColor={stats.recoveryScore >= 70 ? "text-emerald-400" : stats.recoveryScore >= 40 ? "text-yellow-400" : "text-red-400"}
             />
             <MetricCard
                 title="Current Weight"
-                value={`${stats.currentWeight} kg`}
+                value={`${hasWeight ? stats.currentWeight : '—'} kg`}
                 icon="⚖️"
                 iconColor="bg-emerald-500 text-emerald-400"
-                trendIcon="↓"
-                trendText="0.3 kg from last week"
-                trendColor="text-emerald-400"
+                trendText={hasWeight ? "Last updated" : "Update your stats below"}
+                trendColor={hasWeight ? "text-emerald-400" : "text-gray-500"}
             />
         </div>
     )
