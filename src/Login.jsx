@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'react-hot-toast'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 
@@ -11,7 +12,7 @@ const Login = ({ onLoginSuccess, onSwitchToRegister }) => {
     const handleLogin = async (e) => {
         e.preventDefault()
         setIsLoggingIn(true)
-        setLoginError("")
+        setIsLoggingIn(true)
 
         try {
             const response = await fetch(`${API_BASE}/api/users/login`, {
@@ -36,7 +37,7 @@ const Login = ({ onLoginSuccess, onSwitchToRegister }) => {
 
             onLoginSuccess(token, userId)
         } catch (error) {
-            setLoginError("Login failed. Check your username and password.")
+            toast.error("Login failed. Check your username and password.")
         } finally {
             setIsLoggingIn(false)
         }
@@ -76,7 +77,6 @@ const Login = ({ onLoginSuccess, onSwitchToRegister }) => {
                     >
                         {isLoggingIn ? "Authenticating..." : "Login"}
                     </button>
-                    {loginError && <p className="text-red-400 text-sm mt-2 text-center">{loginError}</p>}
                 </form>
 
                 <button

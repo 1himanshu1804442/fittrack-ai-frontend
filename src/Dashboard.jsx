@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Sidebar from './Sidebar'
 import MetricsRow from './MetricsRow'
 import ReactMarkdown from 'react-markdown'
-import Analytics from './Analytics'
+import { toast } from 'react-hot-toast'
+import { Menu } from 'lucide-react'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 
@@ -12,16 +13,15 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
     const [weight, setWeight] = useState("")
     const [goal, setGoal] = useState("MUSCLE_GAIN")
     const [trainingDays, setTrainingDays] = useState("6")
-    const [message, setMessage] = useState("")
     const [aiPlan, setAiPlan] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
     const [, setAiError] = useState("")
-    const [sessionMessage, setSessionMessage] = useState("")
 
     const [exerciseLogs, setExerciseLogs] = useState([])
+    const [quickLogData, setQuickLogData] = useState([])
     const [exerciseForm, setExerciseForm] = useState({ exerciseName: '', weight: '', sets: '', reps: '' })
-    const [logMessage, setLogMessage] = useState("")
     const [stats, setStats] = useState({ workoutStreak: 0, weeklyVolume: 0, recoveryScore: 0, currentWeight: 0 })
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const [editingLogId, setEditingLogId] = useState(null)
     const [editLogForm, setEditLogForm] = useState({ exerciseName: '', weight: '', sets: '', reps: '' })
@@ -32,7 +32,8 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                 headers: { 'Authorization': `Bearer ${jwtToken}` }
             })
             if (response.status === 403) {
-                setSessionMessage("Session expired.")
+                toast.error("Session expired.")
+                onLogout()
                 return
             }
             if (response.ok) {
@@ -58,6 +59,20 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
         }
     }, [activeUserId, jwtToken])
 
+    const fetchQuickLogData = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE}/api/users/${activeUserId}/exercises/quick-log-data`, {
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
+            })
+            if (response.ok) {
+                const data = await response.json()
+                setQuickLogData(data)
+            }
+        } catch (error) {
+            console.error("Failed to fetch quick log data:", error)
+        }
+    }, [activeUserId, jwtToken])
+
     const fetchStats = useCallback(async () => {
         try {
             const response = await fetch(`${API_BASE}/api/users/${activeUserId}/stats`, {
@@ -73,15 +88,13 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
     }, [activeUserId, jwtToken])
 
     useEffect(() => {
-        // Defer initial fetches to avoid synchronous setState in the effect
-        // which can trigger cascading renders in some ESLint configurations.
-        const id = setTimeout(() => {
-            fetchHistory()
-            fetchExerciseLogs()
+        if (jwtToken && activeUserId) {
             fetchStats()
-        }, 0)
-        return () => clearTimeout(id)
-    }, [fetchHistory, fetchExerciseLogs, fetchStats])
+            fetchExerciseLogs()
+            fetchQuickLogData()
+            fetchHistory()
+        }
+    }, [jwtToken, activeUserId, fetchStats, fetchExerciseLogs, fetchQuickLogData, fetchHistory])
 
     const generateAIPlan = async () => {
         setIsGenerating(true)
@@ -94,7 +107,8 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
             })
 
             if (response.status === 403) {
-                setSessionMessage("Session expired.")
+                toast.error("Session expired.")
+                onLogout()
                 return
             }
             if (!response.ok) throw new Error(`Server returned ${response.status}`)
@@ -104,7 +118,7 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
             await fetchHistory()
         } catch (error) {
             console.error(error)
-            setAiError("The AI engine is currently busy. Please try again in a few minutes.")
+            toast.error("The AI engine is currently busy. Please try again in a few minutes.")
         } finally {
             setIsGenerating(false)
         }
@@ -126,26 +140,26 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
             })
 
             if (response.status === 403) {
-                setSessionMessage("Session expired.")
+                toast.error("Session expired.")
+                onLogout()
                 return
             }
 
             if (response.ok) {
-                setMessage("Profile updated successfully!")
-                setTimeout(() => setMessage(""), 3000)
+                toast.success("Profile updated successfully!")
             } else {
-                setMessage("Update failed: Server error.")
+                toast.error("Update failed: Server error.")
             }
         } catch (error) {
             console.error(error)
-            setMessage("Update failed: Network error.")
+            toast.error("Update failed: Network error.")
         }
     }
 
     const handleLogWorkout = async (e) => {
         e.preventDefault()
         if (!jwtToken || !activeUserId) {
-            setLogMessage("You must be logged in to save a lift.")
+            toast.error("You must be logged in to save a lift.")
             return
         }
         try {
@@ -164,23 +178,23 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
             })
 
             if (response.status === 403) {
-                setLogMessage("Session expired.")
-                setSessionMessage("Session expired.")
+                toast.error("Session expired.")
+                onLogout()
                 return
             }
 
             if (response.ok) {
-                setLogMessage("Lift logged successfully!")
+                toast.success("Lift logged successfully!")
                 setExerciseForm({ exerciseName: '', weight: '', sets: '', reps: '' })
                 fetchExerciseLogs()
                 fetchStats()
-                setTimeout(() => setLogMessage(""), 3000)
+                fetchQuickLogData()
             } else {
-                setLogMessage("Failed to log lift.")
+                toast.error("Failed to log lift.")
             }
         } catch (error) {
             console.error(error)
-            setLogMessage("Network error while logging lift.")
+            toast.error("Network error while logging lift.")
         }
     }
 
@@ -232,11 +246,18 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
     }
 
     return (
-        <div className="flex min-h-screen bg-[#080C10] font-sans">
+        <div className="flex min-h-screen bg-[#080C10] font-sans flex-col md:flex-row">
+            {/* Mobile Header */}
+            <div className="md:hidden flex items-center justify-between p-4 bg-[#0D1117] border-b border-gray-800">
+                <h1 className="text-xl font-bold text-blue-500">FitTrack AI</h1>
+                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white focus:outline-none">
+                    <Menu size={24} />
+                </button>
+            </div>
 
-            <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
+            <Sidebar currentView={currentView} setCurrentView={setCurrentView} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
 
                 <div className="flex justify-between items-start mb-8 border-b border-gray-800 pb-6">
                     <div>
@@ -247,12 +268,6 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                         Logout
                     </button>
                 </div>
-
-                {sessionMessage && (
-                    <div className="mb-4">
-                        <p className="text-red-400 text-sm">{sessionMessage}</p>
-                    </div>
-                )}
 
                 <MetricsRow stats={stats} />
 
@@ -301,11 +316,29 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                             <button onClick={handleUpdateProfile} className="w-full mt-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg py-2.5 font-bold transition">
                                 Save Stats
                             </button>
-                            {message && <p className="text-green-400 text-sm mt-2 text-center">{message}</p>}
                         </div>
 
                         <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
                             <h2 className="text-lg font-bold text-white mb-4">Log a Lift</h2>
+
+                            {quickLogData.length > 0 && (
+                                <div className="mb-6">
+                                    <label className="text-xs text-gray-500 uppercase font-bold block mb-2">Quick Log</label>
+                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                        {quickLogData.map((data, idx) => (
+                                            <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => setExerciseForm({ ...exerciseForm, exerciseName: data.exerciseName, weight: data.lastWeight })}
+                                                className="whitespace-nowrap px-3 py-1.5 bg-[#161B22] border border-gray-700 text-emerald-400 text-sm font-bold rounded-lg hover:bg-[#1C2128] transition"
+                                            >
+                                                {data.exerciseName}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <form onSubmit={handleLogWorkout} className="space-y-4" autoComplete="off">
                                 <div>
                                     <label className="text-xs text-gray-500 uppercase font-bold">Exercise Name</label>
@@ -354,9 +387,6 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                                 <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-lg py-2.5 font-bold transition">
                                     Save Lift
                                 </button>
-                                {logMessage && (
-                                    <p className={`${logMessage === 'Session expired.' ? 'text-red-400' : 'text-green-400'} text-sm mt-2 text-center`}>{logMessage}</p>
-                                )}
                             </form>
                         </div>
 
@@ -373,7 +403,12 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                             </div>
                             <div className="bg-[#161B22] p-4 rounded-xl border border-gray-800 min-h-[120px] max-h-[250px] overflow-y-auto">
                                 {isGenerating ? (
-                                    <p className="text-emerald-400 text-sm text-center py-4 animate-pulse">Analyzing...</p>
+                                    <div className="space-y-3 p-2">
+                                        <div className="w-3/4 h-4 bg-emerald-500/20 animate-pulse rounded"></div>
+                                        <div className="w-full h-4 bg-emerald-500/20 animate-pulse rounded"></div>
+                                        <div className="w-5/6 h-4 bg-emerald-500/20 animate-pulse rounded"></div>
+                                        <div className="w-1/2 h-4 bg-emerald-500/20 animate-pulse rounded"></div>
+                                    </div>
                                 ) : aiPlan ? (
                                     <div className="text-gray-300 text-sm space-y-4">
                                         <ReactMarkdown
@@ -456,11 +491,6 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                         </div>
 
                     </div>
-                </div>
-                
-                {/* Full Width Analytics Section Below */}
-                <div className="mt-10">
-                    <Analytics jwtToken={jwtToken} activeUserId={activeUserId} />
                 </div>
             </div>
         </div>

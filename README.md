@@ -1,67 +1,132 @@
-# 🚀 FitTrack AI - Full-Stack Fitness Coach
-FitTrack AI is a personalized fitness application that leverages AI to generate workout recommendations based on real-time user stats. Built with a robust Spring Boot backend and a reactive Vite + React frontend.
+# FitTrack AI — Frontend 🎨⚡
 
-## 🛠 Tech Stack
-* **Frontend:** React.js, Tailwind CSS, Vite, Recharts.
-* **Backend:** Java 17, Spring Boot, Spring Data JPA, JWT Authentication.
-* **Database:** PostgreSQL.
-* **AI Integration:** Google Gemini AI (via Google AI Studio).
+> **A modern, dark-themed React dashboard for the FitTrack AI fitness platform. Built with Vite, TailwindCSS, and Recharts.**
 
-## ✨ Key Features
-* **AI Recommendations:** Dynamically generates fitness plans based on user weight and goals.
-* **Profile Management:** RESTful API to update body weight and fitness objectives (Strength, Weight Loss, Maintenance).
-* **Comprehensive Analytics:** Visualizes Volume Progression and 1-Rep Max (1RM) using Recharts.
-* **Workout History:** Log, edit, delete, and paginate through past lifts.
-* **Secure Authentication:** Full JWT-based login and registration flow.
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-## 🏗 Architecture Overview
-The project follows a modern decoupled architecture:
-* **Frontend (React):** Captures user data and triggers AI generation via asynchronous fetch calls.
-* **Service Layer (Spring Boot):** Handles the business logic, including DTO-to-Entity mapping, 1RM calculation, and AI prompt engineering.
-* **Data Layer (PostgreSQL):** Persists user progress and history.
+---
 
-## 🚦 Getting Started
+## ✨ Features
 
-### Backend Setup
-1. Navigate to the `demo` folder.
-2. Update `application.properties` with your PostgreSQL credentials and Gemini API Key.
-3. Run the application using Maven:
-   ```bash
-   mvn spring-boot:run
-   ```
+### 📊 Dashboard
+- Real-time metrics: Workout Streak, Weekly Volume, Recovery Score, Body Weight
+- Quick-Log buttons for one-tap exercise logging (auto-fills last weight)
+- AI Coach widget with Gemini-powered plan generation
+- Recent lifts with inline edit/delete
 
-### Frontend Setup
-1. Navigate to the `fittrack-frontend` folder.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### 🧠 AI Workout Generator
+- Select muscle group, equipment, time, experience level, and training focus
+- Generates personalized workout plans via Google Gemini AI
+- Plans persist across tab switches (fetched from database)
+- Beautiful Markdown rendering with syntax-highlighted sections
 
-### Environment configuration
-The frontend reads an optional Vite environment variable `VITE_API_BASE` to point the app at a backend other than the default `http://localhost:8080`.
-Create a `.env` in the project root if you need to override the backend base URL:
+### 🍎 Nutrition Tracker
+- Search 300,000+ foods via USDA FoodData Central API
+- Auto-fills calories, protein, carbs, and fat
+- Customizable daily macro goals (saved to user profile)
+- Daily / Weekly / Monthly tracking views with progress bars
+
+### 📈 Analytics
+- Volume Load over time (line chart)
+- Exercise distribution by muscle group (pie chart)
+- PR tracking and training consistency metrics
+- Powered by Recharts
+
+### 📅 Activity Hub (History)
+- Dual-tab interface: Lifting Logs + AI Plans Archive
+- Lifting logs grouped by date in a timeline view
+- Hover-to-reveal edit/delete actions
+- Expandable AI plan cards with full Markdown rendering
+
+### 🔐 Authentication
+- JWT-based login/register flow
+- Token persisted in localStorage
+- Automatic session expiry handling
+
+---
+
+## 📁 Component Structure
+
 ```
+src/
+├── App.jsx              # Root — routing, auth state, view switching
+├── main.jsx             # Vite entry point
+├── Login.jsx            # Login form with JWT handling
+├── Register.jsx         # Registration with validation
+├── Sidebar.jsx          # Navigation sidebar (dynamic user profile)
+├── Dashboard.jsx        # Main dashboard — stats, quick log, AI coach
+├── MetricsRow.jsx       # Reusable metrics cards component
+├── AIWorkout.jsx        # Custom AI workout generator
+├── Nutrition.jsx        # Food logging + macro tracking
+├── Analytics.jsx        # Charts and training analytics
+├── History.jsx          # Activity Hub — lift timeline + AI archive
+├── App.css              # Global styles
+└── index.css            # Tailwind directives
+```
+
+---
+
+## ⚙️ Setup & Installation
+
+### Prerequisites
+- Node.js 18+
+- Backend server running at `http://localhost:8080`
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/1himanshu1804442/fittrack-ai-frontend.git
+cd fittrack-ai-frontend
+```
+
+### 2. Install dependencies
+```bash
+npm install
+```
+
+### 3. Configure API base (optional)
+Create a `.env` file in the root:
+```env
 VITE_API_BASE=http://localhost:8080
 ```
+If omitted, defaults to `http://localhost:8080`.
 
-## 📈 Completed Roadmap
-- [x] Implement JWT Authentication for multiple users.
-- [x] Add progress tracking charts (Volume & 1RM) using Recharts.
-- [x] Integrate a paginated workout history log with Edit/Delete capabilities.
+### 4. Start development server
+```bash
+npm run dev
+```
+The app will be available at `http://localhost:5173`
 
-## 🐳 Docker Deployment
-To run the full stack using Docker:
-1. Ensure Docker is installed and running.
-2. Navigate to the parent folder `fittrack-fullstack`.
-3. Set your API Key in your terminal: `export GEMINI_API_KEY="your-key-here"` (Linux/Mac) or `$env:GEMINI_API_KEY="your-key-here"` (Windows PowerShell).
-4. Run `docker-compose up --build`.
-5. Access the app at `http://localhost`.
+---
 
-## 👨‍💻 Author
-Himanshu Yadav  
-LeetCode: hy180444 (Knight ⚔️)  
-GitHub: dusty1804
+## 🧪 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **UI Framework** | React 18 |
+| **Build Tool** | Vite 5 |
+| **Styling** | TailwindCSS 3 |
+| **Charts** | Recharts |
+| **Icons** | Lucide React |
+| **Markdown** | react-markdown |
+| **Notifications** | react-hot-toast |
+
+---
+
+## 🔗 Related
+
+- **Backend Repository**: [fittrack-ai-backend](https://github.com/1himanshu1804442/fittrack-ai-backend)
+
+---
+
+## 👤 Author
+
+**Himanshu Yadav**  
+- GitHub: [@1himanshu1804442](https://github.com/1himanshu1804442)
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'react-hot-toast'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 
@@ -13,7 +14,7 @@ const Register = ({ onSwitchToLogin }) => {
     const handleRegister = async (e) => {
         e.preventDefault()
         setIsRegistering(true)
-        setRegisterError("")
+        setIsRegistering(true)
 
         try {
             const response = await fetch(`${API_BASE}/api/users/register`, {
@@ -29,9 +30,10 @@ const Register = ({ onSwitchToLogin }) => {
 
             if (!response.ok) throw new Error("Registration failed")
 
+            toast.success("Account created successfully! Please login.")
             onSwitchToLogin()
         } catch {
-            setRegisterError("Registration failed. Username might be taken.")
+            toast.error("Registration failed. Username might be taken.")
         } finally {
             setIsRegistering(false)
         }
@@ -95,7 +97,6 @@ const Register = ({ onSwitchToLogin }) => {
                     >
                         {isRegistering ? "Creating Account..." : "Sign Up"}
                     </button>
-                    {registerError && <p className="text-red-400 text-sm mt-2 text-center">{registerError}</p>}
                 </form>
 
                 <button
