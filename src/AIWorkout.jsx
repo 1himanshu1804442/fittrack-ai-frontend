@@ -4,7 +4,7 @@ import { Menu } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
+const API_BASE = 'https://fittrack-ai-backend-production.up.railway.app'
 
 const AIWorkout = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
