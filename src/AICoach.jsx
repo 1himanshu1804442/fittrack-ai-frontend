@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { Menu, RefreshCw, Zap } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -80,24 +80,6 @@ const AICoach = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView
             setIsGenerating(false);
         }
     };
-
-    const SectionCard = ({ title, content, icon }) => (
-        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
-            <h3 className="text-emerald-400 font-bold mb-4 flex items-center gap-2">
-                {icon} {title}
-            </h3>
-            <div className="text-gray-300 leading-relaxed flex-1">
-                <ReactMarkdown
-                    components={{
-                        p: ({ children }) => <p className="mb-2">{children}</p>,
-                        strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
-                    }}
-                >
-                    {content || "No data available."}
-                </ReactMarkdown>
-            </div>
-        </div>
-    );
 
     return (
         <div className="flex min-h-screen bg-[#080C10] font-sans flex-col md:flex-row">
@@ -197,5 +179,23 @@ const AICoach = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView
         </div>
     );
 };
+
+const SectionCard = ({ title, content, icon }) => (
+    <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
+        <h3 className="text-emerald-400 font-bold mb-4 flex items-center gap-2">
+            {icon} {title}
+        </h3>
+        <div className="text-gray-300 leading-relaxed flex-1">
+            <ReactMarkdown
+                components={{
+                    p: ({ children }) => <p className="mb-2">{children}</p>,
+                    strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
+                }}
+            >
+                {content || "No data available."}
+            </ReactMarkdown>
+        </div>
+    </div>
+);
 
 export default AICoach;

@@ -180,21 +180,6 @@ const Nutrition = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
     const totalCarbs = logs.reduce((sum, log) => sum + log.carbs, 0) / divisor
     const totalFat = logs.reduce((sum, log) => sum + log.fat, 0) / divisor
 
-    const ProgressBar = ({ label, current, max, colorClass }) => {
-        const percentage = Math.min((current / max) * 100, 100)
-        return (
-            <div className="mb-4">
-                <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-400 font-bold uppercase text-xs">{label}</span>
-                    <span className="text-white font-bold">{Math.round(current)} / {max}</span>
-                </div>
-                <div className="w-full bg-[#161B22] rounded-full h-2.5">
-                    <div className={`h-2.5 rounded-full ${colorClass}`} style={{ width: `${percentage}%` }}></div>
-                </div>
-            </div>
-        )
-    }
-
     return (
         <div className="flex min-h-screen bg-[#080C10] font-sans flex-col md:flex-row">
             <div className="md:hidden flex items-center justify-between p-4 bg-[#0D1117] border-b border-gray-800">
@@ -355,6 +340,21 @@ const Nutrition = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                     </div>
 
                 </div>
+            </div>
+        </div>
+    )
+}
+
+const ProgressBar = ({ label, current, max, colorClass }) => {
+    const percentage = Math.min((current / max) * 100, 100)
+    return (
+        <div className="mb-4">
+            <div className="flex justify-between text-sm mb-1">
+                <span className="text-gray-400 font-bold uppercase text-xs">{label}</span>
+                <span className="text-white font-bold">{Math.round(current)} / {max}</span>
+            </div>
+            <div className="w-full bg-[#161B22] rounded-full h-2.5">
+                <div className={`h-2.5 rounded-full ${colorClass}`} style={{ width: `${percentage}%` }}></div>
             </div>
         </div>
     )

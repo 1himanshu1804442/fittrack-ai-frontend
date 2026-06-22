@@ -8,7 +8,6 @@ const Register = ({ onSwitchToLogin }) => {
     const [password, setPassword] = useState("")
     const [goal, setGoal] = useState("MUSCLE_GAIN")
     const [bodyWeight, setBodyWeight] = useState("")
-    const [registerError, setRegisterError] = useState("")
     const [isRegistering, setIsRegistering] = useState(false)
 
     const handleRegister = async (e) => {
