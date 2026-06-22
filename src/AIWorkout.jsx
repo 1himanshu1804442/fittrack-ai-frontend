@@ -75,24 +75,6 @@ const AIWorkout = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
             setIsGenerating(false)
         }
     }
-
-    const SelectPill = ({ label, options, field }) => (
-        <div className="mb-6">
-            <label className="text-xs text-gray-500 uppercase font-bold block mb-3">{label}</label>
-            <div className="flex flex-wrap gap-3">
-                {options.map(opt => (
-                    <button
-                        key={opt}
-                        onClick={() => setFormData({ ...formData, [field]: opt })}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold transition ${formData[field] === opt ? 'bg-emerald-500 text-black' : 'bg-[#161B22] text-gray-400 hover:bg-[#1C2128] border border-gray-800'}`}
-                    >
-                        {opt}
-                    </button>
-                ))}
-            </div>
-        </div>
-    )
-
     return (
         <div className="flex min-h-screen bg-[#080C10] font-sans flex-col md:flex-row">
             {/* Mobile Header */}
@@ -123,27 +105,32 @@ const AIWorkout = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
                         <SelectPill 
                             label="Target Muscle Group" 
                             options={['Chest', 'Back', 'Legs', 'Full Body', 'Core', 'Arms', 'Shoulders']} 
-                            field="targetMuscleGroup" 
+                            value={formData.targetMuscleGroup}
+                            onChange={(val) => setFormData(prev => ({ ...prev, targetMuscleGroup: val }))}
                         />
                         <SelectPill 
                             label="Equipment Available" 
                             options={['Full Gym', 'Dumbbells Only', 'Bodyweight', 'Resistance Bands']} 
-                            field="equipmentAvailable" 
+                            value={formData.equipmentAvailable}
+                            onChange={(val) => setFormData(prev => ({ ...prev, equipmentAvailable: val }))}
                         />
                         <SelectPill 
                             label="Time Available" 
                             options={['15 mins', '30 mins', '45 mins', '60+ mins']} 
-                            field="timeAvailable" 
+                            value={formData.timeAvailable}
+                            onChange={(val) => setFormData(prev => ({ ...prev, timeAvailable: val }))}
                         />
                         <SelectPill 
                             label="Experience Level" 
                             options={['Beginner', 'Intermediate', 'Advanced']} 
-                            field="experienceLevel" 
+                            value={formData.experienceLevel}
+                            onChange={(val) => setFormData(prev => ({ ...prev, experienceLevel: val }))}
                         />
                         <SelectPill 
                             label="Primary Focus" 
                             options={['Strength', 'Hypertrophy', 'Endurance', 'Mobility']} 
-                            field="focus" 
+                            value={formData.focus}
+                            onChange={(val) => setFormData(prev => ({ ...prev, focus: val }))}
                         />
 
                         <button 
@@ -197,5 +184,22 @@ const AIWorkout = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
         </div>
     )
 }
+
+const SelectPill = ({ label, options, value, onChange }) => (
+    <div className="mb-6">
+        <label className="text-xs text-gray-500 uppercase font-bold block mb-3">{label}</label>
+        <div className="flex flex-wrap gap-3">
+            {options.map(opt => (
+                <button
+                    key={opt}
+                    onClick={() => onChange(opt)}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold transition ${value === opt ? 'bg-emerald-500 text-black' : 'bg-[#161B22] text-gray-400 hover:bg-[#1C2128] border border-gray-800'}`}
+                >
+                    {opt}
+                </button>
+            ))}
+        </div>
+    </div>
+)
 
 export default AIWorkout
