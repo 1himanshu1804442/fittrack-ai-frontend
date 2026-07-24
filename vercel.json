@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://fittrack-ai-backend-production.up.railway.app/api/:path*"
+      "destination": "https://fittrack-api-himanshu-dkfhhbbsgjd9ggfr.centralindia-01.azurewebsites.net/api/:path*"
     }
   ]
 }
