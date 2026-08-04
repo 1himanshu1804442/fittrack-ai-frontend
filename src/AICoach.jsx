@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { Menu, RefreshCw, Zap } from 'lucide-react';
+import { Activity, BarChart3, BatteryMedium, CalendarDays, Dumbbell, Menu, RefreshCw, Sparkles, TriangleAlert, Zap } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 
@@ -25,7 +25,6 @@ const AICoach = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView
         return sessionStorage.getItem('aiCoachLastGenerated') || null;
     });
 
-    // Rotate loading messages
     useEffect(() => {
         let interval;
         if (isGenerating) {
@@ -62,7 +61,6 @@ const AICoach = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView
                 setCoachData(data);
                 sessionStorage.setItem('aiCoachData', JSON.stringify(data));
                 
-                // Format the timestamp beautifully
                 const now = new Date();
                 const options = { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' };
                 const formattedDate = now.toLocaleDateString('en-US', options);
@@ -82,120 +80,115 @@ const AICoach = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentView
     };
 
     return (
-        <div className="flex min-h-screen bg-[#080C10] font-sans flex-col md:flex-row">
-            {/* Mobile Header */}
-            <div className="md:hidden flex items-center justify-between p-4 bg-[#0D1117] border-b border-gray-800">
-                <h1 className="text-xl font-bold text-blue-500">FitTrack AI</h1>
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white focus:outline-none">
-                    <Menu size={24} />
+        <div className="app-shell flex min-h-screen flex-col md:flex-row">
+            <div className="mobile-app-header flex items-center justify-between border-b p-4 md:hidden">
+                <div className="brand-lockup">
+                    <span className="brand-mark"><Zap size={15} strokeWidth={2.8} /></span>
+                    <span>Fit<strong>Track</strong> AI</span>
+                </div>
+                <button type="button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="icon-button h-9 w-9" aria-label="Toggle navigation">
+                    <Menu size={20} />
                 </button>
             </div>
 
             <Sidebar currentView={currentView} setCurrentView={setCurrentView} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8">
-                {/* Header & Controls */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-800 pb-6 gap-4">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <h1 className="text-3xl font-bold text-white">AI Coach</h1>
-                            <span className="px-3 py-1 bg-gradient-to-r from-emerald-500/20 to-purple-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
-                                <Zap size={12} /> Beta
-                            </span>
+            <main className="app-main flex-1">
+                <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
+                    <header className="flex flex-col gap-5 border-b border-[#26313d] pb-6 xl:flex-row xl:items-end xl:justify-between">
+                        <div>
+                            <div className="mb-3 flex flex-wrap items-center gap-3">
+                                <p className="page-eyebrow text-emerald-300">Performance review</p>
+                                <span className="rounded-sm border border-blue-300/20 bg-blue-400/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-blue-200">AI coach</span>
+                            </div>
+                            <h1 className="page-title">Find the signal in your training.</h1>
+                            <p className="page-copy mt-3 max-w-2xl">Get specific next-step recommendations grounded in your recent progression, volume, and recovery.</p>
                         </div>
-                        <p className="text-gray-400 text-sm">Powered by Gemini 2.5 Flash. Get highly specific, actionable advice based on your real performance data.</p>
-                    </div>
-                    <div className="flex gap-4 items-center">
-                        {lastGenerated && (
-                            <span className="text-xs text-gray-500 hidden md:inline-block">Last Generated: {lastGenerated}</span>
-                        )}
-                        <button 
-                            onClick={handleGenerateReview} 
-                            disabled={isGenerating}
-                            className="bg-emerald-500 hover:bg-emerald-600 text-black px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 flex items-center gap-2 whitespace-nowrap shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                        >
-                            {isGenerating ? <RefreshCw className="animate-spin" size={18} /> : "⚡ Generate Review"}
-                        </button>
-                    </div>
-                </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                            {lastGenerated && <span className="font-mono text-[11px] text-zinc-600">LAST REVIEW: {lastGenerated}</span>}
+                            <button 
+                                type="button"
+                                onClick={handleGenerateReview} 
+                                disabled={isGenerating}
+                                className="btn-primary h-10 px-4 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isGenerating ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                                {isGenerating ? "Generating review..." : "Generate review"}
+                            </button>
+                            <button type="button" onClick={onLogout} className="btn-danger h-10 px-3.5 text-sm">Logout</button>
+                        </div>
+                    </header>
 
-                {/* Main Content Area */}
-                <div className="max-w-6xl mx-auto">
-                    {/* Top Metrics Row */}
                     {coachData && !isGenerating && (
-                        <div className="grid grid-cols-2 gap-6 mb-8">
-                            <div className="bg-[#161B22] border border-gray-800 rounded-2xl p-6 flex flex-col justify-center relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                                <span className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Recovery Score</span>
-                                <div className="text-4xl font-black text-white flex items-end gap-2">
-                                    {coachData.recoveryScore}%
-                                    <span className={`text-sm mb-1 ${coachData.recoveryScore >= 60 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2" aria-label="Coach summary metrics">
+                            <article className="metric-card p-5">
+                                <p className="metric-label">Recovery score</p>
+                                <div className="mt-4 flex flex-wrap items-end gap-x-3 gap-y-1">
+                                    <p className="metric-value text-3xl">{coachData.recoveryScore}%</p>
+                                    <p className={`mb-1 text-xs font-semibold ${coachData.recoveryScore >= 60 ? 'text-emerald-300' : 'text-red-300'}`}>
                                         {coachData.recoveryScore >= 60 ? 'Ready to train' : 'Need rest'}
-                                    </span>
+                                    </p>
                                 </div>
-                            </div>
-                            <div className="bg-[#161B22] border border-gray-800 rounded-2xl p-6 flex flex-col justify-center relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                                <span className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Weekly Volume</span>
-                                <div className="text-4xl font-black text-white flex items-end gap-2">
-                                    {coachData.volumeChange > 0 ? '+' : ''}{coachData.volumeChange}%
-                                    <span className={`text-sm mb-1 ${coachData.volumeChange > 0 ? 'text-emerald-400' : 'text-gray-400'}`}>
-                                        vs Last Week
-                                    </span>
+                            </article>
+                            <article className="metric-card p-5">
+                                <p className="metric-label">Weekly volume</p>
+                                <div className="mt-4 flex flex-wrap items-end gap-x-3 gap-y-1">
+                                    <p className="metric-value text-3xl">{coachData.volumeChange > 0 ? '+' : ''}{coachData.volumeChange}%</p>
+                                    <p className={`mb-1 text-xs font-semibold ${coachData.volumeChange > 0 ? 'text-blue-300' : 'text-zinc-500'}`}>vs last week</p>
                                 </div>
-                            </div>
-                        </div>
+                            </article>
+                        </section>
                     )}
 
-                    {/* Loading State or Cards Grid */}
                     {isGenerating ? (
-                        <div className="flex flex-col items-center justify-center h-64 border border-dashed border-gray-800 rounded-2xl bg-[#0D1117]">
-                            <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-6"></div>
-                            <h2 className="text-xl font-bold text-white mb-2">{loadingMessages[loadingMessageIndex]}</h2>
-                            <p className="text-gray-500 text-sm">Please wait while the AI analyzes your data...</p>
-                        </div>
-                    ) : coachData && coachData.sections ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            <SectionCard title="Performance Summary" icon="📊" content={coachData.sections.performanceSummary} />
-                            <SectionCard title="Recovery Analysis" icon="🔋" content={coachData.sections.recoveryAnalysis} />
-                            <SectionCard title="Progressive Overload" icon="📈" content={coachData.sections.progressiveOverloadAnalysis} />
-                            <SectionCard title="Potential Issues" icon="⚠️" content={coachData.sections.potentialIssues} />
-                            <SectionCard title="Next Workout" icon="🏋️" content={coachData.sections.nextWorkoutRecommendations} />
-                            <SectionCard title="Next Week" icon="📅" content={coachData.sections.nextWeekRecommendations} />
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-96 border border-dashed border-gray-800 rounded-2xl bg-[#0D1117] text-center px-4">
-                            <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6">
-                                <Zap className="text-emerald-400" size={32} />
+                        <section className="surface-panel signal-surface flex min-h-64 flex-col items-center justify-center px-5 text-center">
+                            <div className="mb-6 grid h-11 w-11 place-items-center border border-emerald-300/20 bg-emerald-400/10 text-emerald-300">
+                                <RefreshCw className="animate-spin" size={21} />
                             </div>
-                            <h2 className="text-2xl font-bold text-white mb-3">Your Personal AI Coach</h2>
-                            <p className="text-gray-400 max-w-md mx-auto leading-relaxed">
-                                Ready to take your training to the next level? Hit the Generate button above to receive a deep-dive analysis of your recent progression, volume, and recovery.
-                            </p>
-                        </div>
+                            <p className="font-mono text-xs uppercase tracking-[0.13em] text-zinc-600">Coach is reading the work</p>
+                            <h2 className="mt-3 text-xl font-bold tracking-[-0.04em] text-zinc-100">{loadingMessages[loadingMessageIndex]}</h2>
+                            <p className="mt-2 text-sm text-zinc-500">This can take a moment while your training data is assessed.</p>
+                        </section>
+                    ) : coachData && coachData.sections ? (
+                        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                            <SectionCard title="Performance summary" Icon={Activity} content={coachData.sections.performanceSummary} />
+                            <SectionCard title="Recovery analysis" Icon={BatteryMedium} content={coachData.sections.recoveryAnalysis} />
+                            <SectionCard title="Progressive overload" Icon={BarChart3} content={coachData.sections.progressiveOverloadAnalysis} />
+                            <SectionCard title="Potential issues" Icon={TriangleAlert} content={coachData.sections.potentialIssues} />
+                            <SectionCard title="Next workout" Icon={Dumbbell} content={coachData.sections.nextWorkoutRecommendations} />
+                            <SectionCard title="Next week" Icon={CalendarDays} content={coachData.sections.nextWeekRecommendations} />
+                        </section>
+                    ) : (
+                        <section className="surface-panel signal-surface flex min-h-96 flex-col justify-center p-7 sm:p-12">
+                            <span className="mb-6 grid h-12 w-12 place-items-center border border-emerald-300/20 bg-emerald-400/10 text-emerald-300"><Sparkles size={21} /></span>
+                            <p className="page-eyebrow mb-3">No review generated yet</p>
+                            <h2 className="max-w-xl text-3xl font-bold tracking-[-0.055em] text-zinc-100">Your training data has a story. Let’s read it.</h2>
+                            <p className="mt-4 max-w-xl text-sm leading-7 text-zinc-500">Generate a review for a focused picture of your recent progression, weekly volume, and recovery signals.</p>
+                        </section>
                     )}
                 </div>
-            </div>
+            </main>
         </div>
     );
 };
 
-const SectionCard = ({ title, content, icon }) => (
-    <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
-        <h3 className="text-emerald-400 font-bold mb-4 flex items-center gap-2">
-            {icon} {title}
-        </h3>
-        <div className="text-gray-300 leading-relaxed flex-1">
+const SectionCard = ({ title, content, Icon }) => (
+    <article className="surface-panel p-5">
+        <div className="mb-5 flex items-center gap-3">
+            <span className="grid h-8 w-8 place-items-center border border-emerald-300/15 bg-emerald-400/10 text-emerald-300"><Icon size={16} /></span>
+            <h3 className="text-sm font-bold text-zinc-100">{title}</h3>
+        </div>
+        <div className="text-sm leading-6 text-zinc-400">
             <ReactMarkdown
                 components={{
                     p: ({ children }) => <p className="mb-2">{children}</p>,
-                    strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
+                    strong: ({ children }) => <strong className="font-bold text-zinc-100">{children}</strong>,
                 }}
             >
                 {content || "No data available."}
             </ReactMarkdown>
         </div>
-    </div>
+    </article>
 );
 
 export default AICoach;

@@ -3,7 +3,7 @@ import Sidebar from './Sidebar'
 import MetricsRow from './MetricsRow'
 import ReactMarkdown from 'react-markdown'
 import { toast } from 'react-hot-toast'
-import { Menu } from 'lucide-react'
+import { Dumbbell, Edit2, LogOut, Menu, Sparkles, Trash2, Zap } from 'lucide-react'
 
 const API_BASE = ''
 
@@ -265,255 +265,285 @@ const Dashboard = ({ jwtToken, activeUserId, onLogout, currentView, setCurrentVi
     }
 
     return (
-        <div className="flex min-h-screen bg-[#080C10] font-sans flex-col md:flex-row">
-            {/* Mobile Header */}
-            <div className="md:hidden flex items-center justify-between p-4 bg-[#0D1117] border-b border-gray-800">
-                <h1 className="text-xl font-bold text-blue-500">FitTrack AI</h1>
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white focus:outline-none">
-                    <Menu size={24} />
+        <div className="app-shell flex min-h-screen flex-col md:flex-row">
+            <div className="mobile-app-header flex items-center justify-between border-b p-4 md:hidden">
+                <div className="brand-lockup">
+                    <span className="brand-mark"><Zap size={15} strokeWidth={2.8} /></span>
+                    <span>Fit<strong>Track</strong> AI</span>
+                </div>
+                <button type="button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="icon-button h-9 w-9" aria-label="Toggle navigation">
+                    <Menu size={20} />
                 </button>
             </div>
 
             <Sidebar currentView={currentView} setCurrentView={setCurrentView} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8">
-
-                <div className="flex justify-between items-start mb-8 border-b border-gray-800 pb-6">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white mb-1">
-                            Good morning{userData?.username ? `, ${userData.username}` : ''} 💪
-                        </h1>
-                        <p className="text-gray-400 text-sm">Ready to crush your goals today?</p>
-                    </div>
-                    <button onClick={onLogout} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 px-4 py-2 rounded-lg font-bold transition">
-                        Logout
-                    </button>
-                </div>
-
-                <MetricsRow stats={stats} />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
-
-                    <div className="space-y-10">
-
-                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
-                            <h2 className="text-lg font-bold text-white mb-4">Update Body Stats</h2>
-                            <div className="flex gap-4">
-                                <div className="w-1/3">
-                                    <label className="text-xs text-gray-500 uppercase font-bold">Weight (kg)</label>
-                                    <input
-                                        type="number"
-                                        value={weight}
-                                        onChange={(e) => setWeight(e.target.value)}
-                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
-                                    />
-                                </div>
-                                <div className="w-1/3">
-                                    <label className="text-xs text-gray-500 uppercase font-bold">Goal</label>
-                                    <select
-                                        value={goal}
-                                        onChange={(e) => setGoal(e.target.value)}
-                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
-                                    >
-                                        <option value="MUSCLE_GAIN">Muscle Gain</option>
-                                        <option value="WEIGHT_LOSS">Weight Loss</option>
-                                        <option value="MAINTENANCE">Maintenance</option>
-                                    </select>
-                                </div>
-                                <div className="w-1/3">
-                                    <label className="text-xs text-gray-500 uppercase font-bold">Days/Week</label>
-                                    <select
-                                        value={trainingDays}
-                                        onChange={(e) => setTrainingDays(e.target.value)}
-                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
-                                    >
-                                        <option value="3">3 Days</option>
-                                        <option value="4">4 Days</option>
-                                        <option value="5">5 Days</option>
-                                        <option value="6">6 Days</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button onClick={handleUpdateProfile} className="w-full mt-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg py-2.5 font-bold transition">
-                                Save Stats
-                            </button>
+            <main className="app-main flex-1">
+                <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
+                    <header className="flex flex-col gap-5 border-b border-[#26313d] pb-6 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p className="page-eyebrow mb-3 text-emerald-300">Training overview</p>
+                            <h1 className="page-title">Good morning{userData?.username ? `, ${userData.username}` : ''}.</h1>
+                            <p className="page-copy mt-3">Your next useful training signal is below.</p>
                         </div>
+                        <button type="button" onClick={onLogout} className="btn-danger h-10 px-3.5 text-sm">
+                            <LogOut size={16} />
+                            Logout
+                        </button>
+                    </header>
 
-                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
-                            <h2 className="text-lg font-bold text-white mb-4">Log a Lift</h2>
+                    <MetricsRow stats={stats} />
 
-                            {quickLogData.length > 0 && (
-                                <div className="mb-6">
-                                    <label className="text-xs text-gray-500 uppercase font-bold block mb-2">Quick Log</label>
-                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                                        {quickLogData.map((data, idx) => (
-                                            <button
-                                                key={idx}
-                                                type="button"
-                                                onClick={() => setExerciseForm({ ...exerciseForm, exerciseName: data.exerciseName, weight: data.lastWeight })}
-                                                className="whitespace-nowrap px-3 py-1.5 bg-[#161B22] border border-gray-700 text-emerald-400 text-sm font-bold rounded-lg hover:bg-[#1C2128] transition"
-                                            >
-                                                {data.exerciseName}
-                                            </button>
-                                        ))}
+                    <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+                        <div className="space-y-5">
+                            <section className="surface-panel signal-surface p-5 sm:p-6">
+                                <div className="mb-6 flex items-start justify-between gap-4">
+                                    <div>
+                                        <p className="page-eyebrow mb-2">Profile calibration</p>
+                                        <h2 className="text-lg font-bold tracking-[-0.035em] text-zinc-100">Body metrics</h2>
                                     </div>
+                                    <span className="font-mono text-xs text-zinc-600">LIVE PROFILE</span>
                                 </div>
-                            )}
-
-                            <form onSubmit={handleLogWorkout} className="space-y-4" autoComplete="off">
-                                <div>
-                                    <label className="text-xs text-gray-500 uppercase font-bold">Exercise Name</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        placeholder="e.g. Incline Dumbbell Press"
-                                        value={exerciseForm.exerciseName}
-                                        onChange={(e) => setExerciseForm({...exerciseForm, exerciseName: e.target.value})}
-                                        className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
-                                    />
-                                </div>
-                                <div className="flex gap-4">
-                                    <div className="w-1/3">
-                                        <label className="text-xs text-gray-500 uppercase font-bold">Weight (kg)</label>
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <label className="block">
+                                        <span className="form-label mb-2 block">Weight (kg)</span>
                                         <input
                                             type="number"
-                                            step="0.5"
-                                            required
-                                            value={exerciseForm.weight}
-                                            onChange={(e) => setExerciseForm({...exerciseForm, weight: e.target.value})}
-                                            className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
+                                            value={weight}
+                                            onChange={(e) => setWeight(e.target.value)}
+                                            className="form-control h-11 px-3 text-sm"
                                         />
-                                    </div>
-                                    <div className="w-1/3">
-                                        <label className="text-xs text-gray-500 uppercase font-bold">Sets</label>
-                                        <input
-                                            type="number"
-                                            required
-                                            value={exerciseForm.sets}
-                                            onChange={(e) => setExerciseForm({...exerciseForm, sets: e.target.value})}
-                                            className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
-                                        />
-                                    </div>
-                                    <div className="w-1/3">
-                                        <label className="text-xs text-gray-500 uppercase font-bold">Reps</label>
-                                        <input
-                                            type="number"
-                                            required
-                                            value={exerciseForm.reps}
-                                            onChange={(e) => setExerciseForm({...exerciseForm, reps: e.target.value})}
-                                            className="w-full mt-1 bg-[#161B22] border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-blue-500"
-                                        />
-                                    </div>
-                                </div>
-                                <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-black rounded-lg py-2.5 font-bold transition">
-                                    Save Lift
-                                </button>
-                            </form>
-                        </div>
-
-                    </div>
-
-                    <div className="space-y-10">
-
-                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-lg font-bold text-white flex items-center gap-2">⚡ AI Workout Generator</h2>
-                                <button onClick={generateAIPlan} disabled={isGenerating} className="bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-bold py-1.5 px-3 rounded-lg transition disabled:opacity-50">
-                                    {isGenerating ? "Thinking..." : "Generate Plan"}
-                                </button>
-                            </div>
-                            <div className="bg-[#161B22] p-4 rounded-xl border border-gray-800 min-h-[120px] max-h-[250px] overflow-y-auto">
-                                {isGenerating ? (
-                                    <div className="space-y-3 p-2">
-                                        <div className="w-3/4 h-4 bg-emerald-500/20 animate-pulse rounded"></div>
-                                        <div className="w-full h-4 bg-emerald-500/20 animate-pulse rounded"></div>
-                                        <div className="w-5/6 h-4 bg-emerald-500/20 animate-pulse rounded"></div>
-                                        <div className="w-1/2 h-4 bg-emerald-500/20 animate-pulse rounded"></div>
-                                    </div>
-                                ) : aiPlan ? (
-                                    <div className="text-gray-300 text-sm space-y-4">
-                                        <ReactMarkdown
-                                            components={{
-                                                strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
-                                                ul: ({ children }) => <ul className="list-disc pl-5 space-y-2 mb-4">{children}</ul>,
-                                                li: ({ children }) => <li className="marker:text-emerald-500">{children}</li>,
-                                                p: ({ children }) => <p className="mb-2">{children}</p>
-                                            }}
+                                    </label>
+                                    <label className="block">
+                                        <span className="form-label mb-2 block">Goal</span>
+                                        <select
+                                            value={goal}
+                                            onChange={(e) => setGoal(e.target.value)}
+                                            className="form-control h-11 px-3 text-sm"
                                         >
-                                            {aiPlan || ""}
-                                        </ReactMarkdown>
+                                            <option value="MUSCLE_GAIN">Muscle Gain</option>
+                                            <option value="WEIGHT_LOSS">Weight Loss</option>
+                                            <option value="MAINTENANCE">Maintenance</option>
+                                        </select>
+                                    </label>
+                                    <label className="block">
+                                        <span className="form-label mb-2 block">Days / week</span>
+                                        <select
+                                            value={trainingDays}
+                                            onChange={(e) => setTrainingDays(e.target.value)}
+                                            className="form-control h-11 px-3 text-sm"
+                                        >
+                                            <option value="3">3 Days</option>
+                                            <option value="4">4 Days</option>
+                                            <option value="5">5 Days</option>
+                                            <option value="6">6 Days</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <button type="button" onClick={handleUpdateProfile} className="btn-secondary mt-5 h-10 w-full px-4 text-sm sm:w-auto">
+                                    Save metrics
+                                </button>
+                            </section>
+
+                            <section className="surface-panel p-5 sm:p-6">
+                                <div className="mb-6 flex items-start justify-between gap-4">
+                                    <div>
+                                        <p className="page-eyebrow mb-2">Session input</p>
+                                        <h2 className="text-lg font-bold tracking-[-0.035em] text-zinc-100">Log a lift</h2>
                                     </div>
-                                ) : (
-                                    <p className="text-gray-600 italic text-sm text-center py-4">Click generate for a tailored plan.</p>
-                                )}
-                            </div>
-                        </div>
+                                    <Dumbbell size={19} className="text-emerald-300" />
+                                </div>
 
-
-                        <div className="bg-[#0f141a] p-6 rounded-2xl border border-gray-800">
-                            <h2 className="text-lg font-bold text-white mb-4">Recent Lifts</h2>
-                            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-                                {exerciseLogs.length === 0 ? (
-                                    <p className="text-gray-600 italic text-sm">No lifts logged yet.</p>
-                                ) : (
-                                    exerciseLogs.map((log) => (
-                                        <div key={log.id} className="bg-[#161B22] border border-gray-800 p-4 rounded-xl flex justify-between items-center flex-wrap gap-4">
-                                            {editingLogId === log.id ? (
-                                                <div className="flex-1 flex gap-3 items-center w-full">
-                                                    <input 
-                                                        className="bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white flex-1 focus:outline-none focus:border-blue-500"
-                                                        value={editLogForm.exerciseName}
-                                                        onChange={e => setEditLogForm({...editLogForm, exerciseName: e.target.value})}
-                                                        placeholder="Name"
-                                                    />
-                                                    <input 
-                                                        type="number" className="w-16 bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
-                                                        value={editLogForm.weight}
-                                                        onChange={e => setEditLogForm({...editLogForm, weight: e.target.value})}
-                                                        placeholder="kg"
-                                                    />
-                                                    <input 
-                                                        type="number" className="w-16 bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
-                                                        value={editLogForm.sets}
-                                                        onChange={e => setEditLogForm({...editLogForm, sets: e.target.value})}
-                                                        placeholder="Sets"
-                                                    />
-                                                    <input 
-                                                        type="number" className="w-16 bg-[#0D1117] border border-gray-700 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
-                                                        value={editLogForm.reps}
-                                                        onChange={e => setEditLogForm({...editLogForm, reps: e.target.value})}
-                                                        placeholder="Reps"
-                                                    />
-                                                    <button onClick={handleSaveEditLift} className="text-emerald-400 font-bold hover:text-emerald-300">Save</button>
-                                                    <button onClick={() => setEditingLogId(null)} className="text-gray-400 font-bold hover:text-white">Cancel</button>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div>
-                                                        <p className="text-emerald-400 font-bold text-sm">{log.exerciseName}</p>
-                                                        <p className="text-gray-400 text-xs mt-0.5">{new Date(log.dateLogged).toLocaleDateString()}</p>
-                                                    </div>
-                                                    <div className="text-right flex items-center gap-6">
-                                                        <div>
-                                                            <p className="text-white font-bold">{log.weight} kg</p>
-                                                            <p className="text-gray-500 text-xs">{log.sets} sets × {log.reps} reps</p>
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
-                                                            <button onClick={() => startEditLift(log)} className="text-blue-400 hover:text-blue-300 transition" title="Edit">✏️</button>
-                                                            <button onClick={() => handleDeleteLift(log.id)} className="text-red-400 hover:text-red-300 transition" title="Delete">🗑️</button>
-                                                        </div>
-                                                    </div>
-                                                </>
-                                            )}
+                                {quickLogData.length > 0 && (
+                                    <div className="mb-6 border-b border-[#26313d] pb-5">
+                                        <span className="form-label mb-3 block">Recent movements</span>
+                                        <div className="custom-scrollbar flex gap-2 overflow-x-auto pb-1">
+                                            {quickLogData.map((data, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => setExerciseForm({ ...exerciseForm, exerciseName: data.exerciseName, weight: data.lastWeight })}
+                                                    className="shrink-0 rounded-md border border-[#354454] bg-[#10151c] px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-300/50 hover:bg-emerald-400/10"
+                                                >
+                                                    {data.exerciseName}
+                                                </button>
+                                            ))}
                                         </div>
-                                    ))
+                                    </div>
                                 )}
-                            </div>
+
+                                <form onSubmit={handleLogWorkout} className="space-y-4" autoComplete="off">
+                                    <label className="block">
+                                        <span className="form-label mb-2 block">Exercise name</span>
+                                        <input
+                                            type="text"
+                                            required
+                                            placeholder="e.g. Incline Dumbbell Press"
+                                            value={exerciseForm.exerciseName}
+                                            onChange={(e) => setExerciseForm({...exerciseForm, exerciseName: e.target.value})}
+                                            className="form-control h-11 px-3 text-sm"
+                                        />
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <label className="block">
+                                            <span className="form-label mb-2 block">Weight (kg)</span>
+                                            <input
+                                                type="number"
+                                                step="0.5"
+                                                required
+                                                value={exerciseForm.weight}
+                                                onChange={(e) => setExerciseForm({...exerciseForm, weight: e.target.value})}
+                                                className="form-control h-11 px-3 text-sm"
+                                            />
+                                        </label>
+                                        <label className="block">
+                                            <span className="form-label mb-2 block">Sets</span>
+                                            <input
+                                                type="number"
+                                                required
+                                                value={exerciseForm.sets}
+                                                onChange={(e) => setExerciseForm({...exerciseForm, sets: e.target.value})}
+                                                className="form-control h-11 px-3 text-sm"
+                                            />
+                                        </label>
+                                        <label className="block">
+                                            <span className="form-label mb-2 block">Reps</span>
+                                            <input
+                                                type="number"
+                                                required
+                                                value={exerciseForm.reps}
+                                                onChange={(e) => setExerciseForm({...exerciseForm, reps: e.target.value})}
+                                                className="form-control h-11 px-3 text-sm"
+                                            />
+                                        </label>
+                                    </div>
+                                    <button type="submit" className="btn-primary h-11 w-full px-4 text-sm">
+                                        Save lift
+                                    </button>
+                                </form>
+                            </section>
                         </div>
 
+                        <div className="space-y-5">
+                            <section className="surface-panel signal-surface p-5 sm:p-6">
+                                <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                    <div>
+                                        <p className="page-eyebrow mb-2">Adaptive programming</p>
+                                        <h2 className="flex items-center gap-2 text-lg font-bold tracking-[-0.035em] text-zinc-100">
+                                            <Sparkles size={18} className="text-emerald-300" />
+                                            AI workout generator
+                                        </h2>
+                                    </div>
+                                    <button type="button" onClick={generateAIPlan} disabled={isGenerating} className="btn-primary h-9 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-50">
+                                        {isGenerating ? "Thinking..." : "Generate plan"}
+                                    </button>
+                                </div>
+                                <div className="custom-scrollbar min-h-[170px] max-h-[290px] overflow-y-auto border border-[#26313d] bg-[#131922] p-4 sm:p-5">
+                                    {isGenerating ? (
+                                        <div className="space-y-3 py-2">
+                                            <div className="h-3 w-3/4 animate-pulse bg-emerald-400/20" />
+                                            <div className="h-3 w-full animate-pulse bg-emerald-400/10" />
+                                            <div className="h-3 w-5/6 animate-pulse bg-emerald-400/10" />
+                                            <div className="h-3 w-1/2 animate-pulse bg-emerald-400/10" />
+                                        </div>
+                                    ) : aiPlan ? (
+                                        <div className="space-y-4 text-sm leading-6 text-zinc-300">
+                                            <ReactMarkdown
+                                                components={{
+                                                    strong: ({ children }) => <strong className="font-bold text-zinc-100">{children}</strong>,
+                                                    ul: ({ children }) => <ul className="mb-4 list-disc space-y-2 pl-5">{children}</ul>,
+                                                    li: ({ children }) => <li className="marker:text-emerald-400">{children}</li>,
+                                                    p: ({ children }) => <p className="mb-2">{children}</p>
+                                                }}
+                                            >
+                                                {aiPlan || ""}
+                                            </ReactMarkdown>
+                                        </div>
+                                    ) : (
+                                        <div className="flex min-h-[130px] flex-col justify-center">
+                                            <p className="font-mono text-xs uppercase tracking-[0.12em] text-zinc-600">No active prescription</p>
+                                            <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-500">Generate a plan to turn your current training data into a focused next session.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+
+                            <section className="surface-panel p-5 sm:p-6">
+                                <div className="mb-5 flex items-start justify-between gap-4">
+                                    <div>
+                                        <p className="page-eyebrow mb-2">Latest entries</p>
+                                        <h2 className="text-lg font-bold tracking-[-0.035em] text-zinc-100">Recent lifts</h2>
+                                    </div>
+                                    <span className="font-mono text-xs text-zinc-600">{exerciseLogs.length.toString().padStart(2, '0')} LOGS</span>
+                                </div>
+                                <div className="custom-scrollbar max-h-[335px] overflow-y-auto">
+                                    {exerciseLogs.length === 0 ? (
+                                        <div className="border-t border-[#26313d] py-8">
+                                            <p className="text-sm text-zinc-500">No lifts logged yet. Your latest work will appear here.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="divide-y divide-[#26313d] border-y border-[#26313d]">
+                                            {exerciseLogs.map((log) => (
+                                                <div key={log.id} className="py-4">
+                                                    {editingLogId === log.id ? (
+                                                        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_4.5rem]">
+                                                            <input
+                                                                className="form-control h-10 px-3 text-sm"
+                                                                value={editLogForm.exerciseName}
+                                                                onChange={e => setEditLogForm({...editLogForm, exerciseName: e.target.value})}
+                                                                placeholder="Name"
+                                                            />
+                                                            <input
+                                                                type="number" className="form-control h-10 px-3 text-sm"
+                                                                value={editLogForm.weight}
+                                                                onChange={e => setEditLogForm({...editLogForm, weight: e.target.value})}
+                                                                placeholder="kg"
+                                                            />
+                                                            <input
+                                                                type="number" className="form-control h-10 px-3 text-sm"
+                                                                value={editLogForm.sets}
+                                                                onChange={e => setEditLogForm({...editLogForm, sets: e.target.value})}
+                                                                placeholder="Sets"
+                                                            />
+                                                            <input
+                                                                type="number" className="form-control h-10 px-3 text-sm"
+                                                                value={editLogForm.reps}
+                                                                onChange={e => setEditLogForm({...editLogForm, reps: e.target.value})}
+                                                                placeholder="Reps"
+                                                            />
+                                                            <div className="flex gap-2 sm:col-span-4">
+                                                                <button type="button" onClick={handleSaveEditLift} className="btn-primary h-9 px-3 text-xs">Save changes</button>
+                                                                <button type="button" onClick={() => setEditingLogId(null)} className="btn-secondary h-9 px-3 text-xs">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-wrap items-center justify-between gap-4">
+                                                            <div>
+                                                                <p className="text-sm font-bold text-emerald-200">{log.exerciseName}</p>
+                                                                <p className="mt-1 text-xs text-zinc-500">{new Date(log.dateLogged).toLocaleDateString()}</p>
+                                                            </div>
+                                                            <div className="ml-auto flex items-center gap-3 sm:gap-5">
+                                                                <div className="text-right">
+                                                                    <p className="data-value text-sm font-bold text-zinc-100">{log.weight} kg</p>
+                                                                    <p className="mt-1 text-xs text-zinc-500">{log.sets} sets × {log.reps} reps</p>
+                                                                </div>
+                                                                <div className="flex items-center gap-1">
+                                                                    <button type="button" onClick={() => startEditLift(log)} className="icon-button h-8 w-8 text-blue-300" title="Edit lift" aria-label={`Edit ${log.exerciseName}`}><Edit2 size={15} /></button>
+                                                                    <button type="button" onClick={() => handleDeleteLift(log.id)} className="icon-button h-8 w-8 text-red-300" title="Delete lift" aria-label={`Delete ${log.exerciseName}`}><Trash2 size={15} /></button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     )
 }

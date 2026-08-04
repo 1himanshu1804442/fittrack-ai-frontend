@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
-import { X, Settings } from 'lucide-react';
+import { Apple, BarChart3, BrainCircuit, Clock3, Dumbbell, LayoutDashboard, Settings, X, Zap } from 'lucide-react';
 
 const API_BASE = '';
+
+const navigationItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'ai-workout', label: 'AI Workout', icon: Dumbbell },
+    { id: 'ai-coach', label: 'AI Coach', icon: BrainCircuit },
+    { id: 'nutrition', label: 'Nutrition', icon: Apple },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'history', label: 'History', icon: Clock3 }
+];
 
 const Sidebar = ({ currentView, setCurrentView, isMobileMenuOpen, setIsMobileMenuOpen }) => {
     const [userData, setUserData] = useState(null);
@@ -31,67 +40,70 @@ const Sidebar = ({ currentView, setCurrentView, isMobileMenuOpen, setIsMobileMen
 
     return (
         <>
-            {isMobileMenuOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>}
-            <div className={`w-60 bg-[#0D1117] border-r border-gray-800 flex flex-col h-screen fixed md:sticky top-0 z-50 transition-transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-                <div className="p-6 border-b border-gray-800 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-white font-bold">
-                            ⚡
-                        </div>
-                        <div className="text-white font-bold text-lg tracking-tight">
-                            Fit<span className="text-emerald-400">Track</span> AI
-                        </div>
+            {isMobileMenuOpen && (
+                <button
+                    type="button"
+                    aria-label="Close navigation"
+                    className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm md:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+            <aside className={`fixed top-0 z-50 flex h-screen w-64 flex-col border-r border-[#26313d] bg-[#0e1218]/95 backdrop-blur-xl transition-transform md:sticky ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+                <div className="flex items-center justify-between border-b border-[#26313d] px-5 py-5">
+                    <div className="brand-lockup">
+                        <span className="brand-mark"><Zap size={16} strokeWidth={2.8} /></span>
+                        <span>Fit<strong>Track</strong> AI</span>
                     </div>
-                    <button className="md:hidden text-gray-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
-                        <X size={20} />
+                    <button
+                        type="button"
+                        aria-label="Close navigation"
+                        className="icon-button h-8 w-8 md:hidden"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        <X size={18} />
                     </button>
                 </div>
 
+                <nav className="flex flex-1 flex-col gap-1 px-3 py-5" aria-label="Primary navigation">
+                    <p className="page-eyebrow px-3 pb-2">Training desk</p>
+                    {navigationItems.map(({ id, label, icon: Icon }) => {
+                        const isActive = currentView === id;
+                        return (
+                            <button
+                                key={id}
+                                type="button"
+                                onClick={() => setCurrentView(id)}
+                                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${isActive ? 'bg-emerald-400/10 font-semibold text-emerald-300' : 'text-zinc-500 hover:bg-[#19212b] hover:text-zinc-100'}`}
+                            >
+                                {isActive && <span className="absolute bottom-2 left-0 top-2 w-0.5 rounded-full bg-emerald-300" aria-hidden="true" />}
+                                <Icon size={17} strokeWidth={isActive ? 2.3 : 1.8} />
+                                <span>{label}</span>
+                            </button>
+                        );
+                    })}
+                </nav>
 
-                <div className="flex-1 px-3 py-4 flex flex-col gap-1">
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 py-2">
-                        Main
-                    </div>
-                    <div onClick={() => setCurrentView('dashboard')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'dashboard' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
-                        <span>▣</span> Dashboard
-                    </div>
-                    <div onClick={() => setCurrentView('ai-workout')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'ai-workout' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
-                        <span>◈</span> AI Workout
-                    </div>
-                    <div onClick={() => setCurrentView('ai-coach')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'ai-coach' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
-                        <span>🧠</span> AI Coach
-                    </div>
-                    <div onClick={() => setCurrentView('nutrition')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'nutrition' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
-                        <span>🍎</span> Nutrition
-                    </div>
-                    <div onClick={() => setCurrentView('analytics')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'analytics' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
-                        <span>📈</span> Analytics
-                    </div>
-                    <div onClick={() => setCurrentView('history')} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${currentView === 'history' ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-gray-400 hover:bg-[#1C2128] hover:text-white'}`}>
-                        <span>◫</span> History
-                    </div>
-                </div>
-
-                <div className="p-4 border-t border-gray-800">
-                    <div 
-                        className="flex items-center gap-3 p-2 bg-[#1C2128] hover:bg-[#22272E] rounded-xl cursor-pointer transition border border-transparent hover:border-gray-700 relative group"
+                <div className="border-t border-[#26313d] p-3">
+                    <button
+                        type="button"
+                        className="group flex w-full items-center gap-3 rounded-lg border border-transparent bg-[#131922] p-2.5 text-left transition hover:border-[#354454] hover:bg-[#19212b]"
                         onClick={() => setCurrentView('dashboard')}
                         title="Go to settings"
                     >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-purple-500 flex items-center justify-center text-white font-bold text-xs shadow-inner">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-emerald-300/20 bg-emerald-400/10 text-xs font-bold text-emerald-200">
                             {initial}
-                        </div>
-                        <div className="flex-1 overflow-hidden">
-                            <div className="text-white text-xs font-bold truncate">{username}</div>
-                            <div className="text-gray-400 text-[10px] flex items-center gap-1 mt-0.5 truncate">
-                                <span className={`w-1.5 h-1.5 rounded-full ${userData?.goal === 'MUSCLE_GAIN' ? 'bg-emerald-400' : userData?.goal === 'WEIGHT_LOSS' ? 'bg-red-400' : 'bg-blue-400'}`}></span>
+                        </span>
+                        <span className="min-w-0 flex-1">
+                            <span className="block truncate text-xs font-bold text-zinc-100">{username}</span>
+                            <span className="mt-1 flex items-center gap-1.5 truncate text-[10px] font-medium text-zinc-500">
+                                <span className={`h-1.5 w-1.5 rounded-full ${userData?.goal === 'MUSCLE_GAIN' ? 'bg-emerald-400' : userData?.goal === 'WEIGHT_LOSS' ? 'bg-red-400' : 'bg-blue-400'}`} />
                                 {goalText}
-                            </div>
-                        </div>
-                        <Settings size={14} className="text-gray-500 opacity-0 group-hover:opacity-100 transition absolute right-3" />
-                    </div>
+                            </span>
+                        </span>
+                        <Settings size={15} className="text-zinc-600 transition group-hover:text-zinc-300" />
+                    </button>
                 </div>
-            </div>
+            </aside>
         </>
     );
 };

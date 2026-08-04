@@ -31,7 +31,18 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-center" toastOptions={{ style: { background: '#161B22', color: '#fff', border: '1px solid #374151' } }} />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: '#131922',
+            color: '#f4f4f5',
+            border: '1px solid #354454',
+            borderRadius: '10px',
+            boxShadow: '0 18px 40px rgba(0, 0, 0, 0.26)'
+          }
+        }}
+      />
       {jwtToken && activeUserId ? (
         currentView === 'history' ? (
           <History jwtToken={jwtToken} activeUserId={activeUserId} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />

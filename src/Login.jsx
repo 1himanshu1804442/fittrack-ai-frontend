@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowRight, LockKeyhole, UserRound, Zap } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 const API_BASE = ''
@@ -29,13 +30,11 @@ const Login = ({ onLoginSuccess, onSwitchToRegister }) => {
             const data = await response.json()
             const token = data.jwt
 
-            // CRITICAL FIX: We completely ignore the token payload here.
-            // We explicitly force React to use the integer ID the backend just sent us.
             const userId = data.userId
 
             if (!userId) {
-                console.error("Backend didn't send a userId!");
-                throw new Error("Invalid response from server");
+                console.error("Backend didn't send a userId!")
+                throw new Error("Invalid response from server")
             }
 
             onLoginSuccess(token, userId)
@@ -47,49 +46,105 @@ const Login = ({ onLoginSuccess, onSwitchToRegister }) => {
     }
 
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center font-sans">
-            <div className="bg-gray-900 border border-gray-800 p-10 rounded-2xl shadow-2xl max-w-md w-full">
-                <h1 className="text-4xl font-extrabold text-blue-500 mb-2 tracking-tight">FitTrack AI</h1>
-                <p className="text-gray-400 text-sm mb-8">Login to access your AI coach.</p>
+        <main className="auth-shell grid min-h-screen lg:grid-cols-[minmax(0,1.15fr)_minmax(26rem,0.85fr)]">
+            <section className="auth-brief training-grid relative hidden min-h-screen overflow-hidden px-10 py-10 lg:flex lg:flex-col xl:px-16 xl:py-14">
+                <div className="brand-lockup relative z-10">
+                    <span className="brand-mark"><Zap size={17} strokeWidth={2.8} /></span>
+                    <span>Fit<strong>Track</strong> AI</span>
+                </div>
 
-                <form onSubmit={handleLogin} className="space-y-4 text-left">
-                    <div>
-                        <label className="text-xs text-gray-500 uppercase font-bold">Username</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="text-xs text-gray-500 uppercase font-bold">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={isLoggingIn}
-                        className="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition disabled:opacity-50"
-                    >
-                        {isLoggingIn ? "Authenticating..." : "Login"}
-                    </button>
-                </form>
+                <div className="relative z-10 my-auto max-w-xl">
+                    <p className="page-eyebrow mb-5 text-emerald-300">Training intelligence / 01</p>
+                    <h1 className="max-w-lg text-5xl font-extrabold leading-[0.98] tracking-[-0.065em] text-zinc-100 xl:text-6xl">
+                        Train with a record of what you can actually do.
+                    </h1>
+                    <p className="mt-6 max-w-md text-base leading-7 text-zinc-400">
+                        FitTrack turns every set, session, and recovery signal into a clearer next move.
+                    </p>
+                </div>
 
-                <button
-                    onClick={onSwitchToRegister}
-                    className="mt-6 text-sm text-gray-400 hover:text-blue-400 transition"
-                >
-                    Don't have an account? Sign up
-                </button>
-            </div>
-        </div>
+                <div className="relative z-10 grid max-w-xl grid-cols-3 gap-5 text-zinc-300">
+                    <div className="auth-stat pl-4">
+                        <p className="font-mono text-lg font-medium text-emerald-300">01</p>
+                        <p className="mt-1 text-xs leading-5 text-zinc-500">Log the work</p>
+                    </div>
+                    <div className="auth-stat pl-4">
+                        <p className="font-mono text-lg font-medium text-emerald-300">02</p>
+                        <p className="mt-1 text-xs leading-5 text-zinc-500">Read the signal</p>
+                    </div>
+                    <div className="auth-stat pl-4">
+                        <p className="font-mono text-lg font-medium text-emerald-300">03</p>
+                        <p className="mt-1 text-xs leading-5 text-zinc-500">Progress on purpose</p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-10 lg:px-14">
+                <div className="auth-panel w-full">
+                    <div className="mb-10 lg:hidden">
+                        <div className="brand-lockup">
+                            <span className="brand-mark"><Zap size={17} strokeWidth={2.8} /></span>
+                            <span>Fit<strong>Track</strong> AI</span>
+                        </div>
+                    </div>
+
+                    <div className="mb-8">
+                        <p className="page-eyebrow mb-3 text-emerald-300">Member access</p>
+                        <h2 className="page-title">Pick up where you left off.</h2>
+                        <p className="page-copy mt-3">Your training history, recovery context, and next session are ready.</p>
+                    </div>
+
+                    <form onSubmit={handleLogin} className="surface-panel signal-surface space-y-5 p-5 sm:p-7" noValidate={false}>
+                        <div>
+                            <label htmlFor="login-username" className="form-label mb-2 block">Username</label>
+                            <div className="auth-input-wrap">
+                                <UserRound size={17} />
+                                <input
+                                    id="login-username"
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="form-control h-12 px-4 text-sm"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label htmlFor="login-password" className="form-label mb-2 block">Password</label>
+                            <div className="auth-input-wrap">
+                                <LockKeyhole size={17} />
+                                <input
+                                    id="login-password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="form-control h-12 px-4 text-sm"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoggingIn}
+                            className="btn-primary mt-2 h-12 w-full px-4 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {isLoggingIn ? "Authenticating..." : <>Continue to dashboard <ArrowRight size={17} /></>}
+                        </button>
+                    </form>
+
+                    <p className="mt-6 text-sm text-zinc-500">
+                        New to FitTrack?{' '}
+                        <button
+                            type="button"
+                            onClick={onSwitchToRegister}
+                            className="font-semibold text-emerald-300 transition hover:text-emerald-200"
+                        >
+                            Create your profile
+                        </button>
+                    </p>
+                </div>
+            </section>
+        </main>
     )
 }
 

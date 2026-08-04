@@ -1,23 +1,22 @@
-import React from 'react'
+import { Flame, HeartPulse, Scale, TrendingUp } from 'lucide-react'
 
-const MetricCard = ({ title, value, icon, trendIcon, trendText, iconColor, trendColor }) => {
+const MetricCard = ({ title, value, Icon, trendIcon, trendText, iconClass, trendClass }) => {
     return (
-        <div className="bg-[#0f141a] border border-gray-800 rounded-xl md:rounded-2xl p-3 md:p-5 flex flex-col justify-between hover:border-gray-700 transition-colors">
-            <div className="flex items-center gap-2 md:flex-col md:items-start md:gap-0">
-                <div className={`p-2 md:p-3 rounded-lg md:rounded-xl ${iconColor} bg-opacity-10 md:mb-4`}>
-                    <span className="text-base md:text-xl">{icon}</span>
+        <article className="metric-card min-w-0 p-4 md:p-5">
+            <div className="flex items-start justify-between gap-3">
+                <div>
+                    <p className="metric-label">{title}</p>
+                    <p className="metric-value mt-3">{value}</p>
                 </div>
-                <div className="flex-1 md:flex-none">
-                    <h3 className="text-gray-400 text-xs md:text-sm font-medium">{title}</h3>
-                    <span className="text-lg md:text-2xl font-bold text-white">{value}</span>
-                </div>
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-md border ${iconClass}`}>
+                    <Icon size={18} strokeWidth={1.9} />
+                </span>
             </div>
-
-            <div className="mt-2 md:mt-4 flex items-center gap-1 md:gap-2 text-[10px] md:text-xs">
-                {trendIcon && <span className={`${trendColor} font-bold`}>{trendIcon}</span>}
-                <span className={trendColor ? trendColor : "text-gray-500"}>{trendText}</span>
+            <div className={`mt-5 flex items-center gap-1.5 text-[11px] font-medium ${trendClass || 'text-zinc-500'}`}>
+                {trendIcon && <TrendingUp size={13} strokeWidth={2.2} />}
+                <span>{trendText}</span>
             </div>
-        </div>
+        </article>
     )
 }
 
@@ -26,41 +25,41 @@ const MetricsRow = ({ stats }) => {
     const hasWeight = stats.currentWeight > 0
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-6 md:mb-8">
+        <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4" aria-label="Training metrics">
             <MetricCard
-                title="Workout Streak"
+                title="Workout streak"
                 value={`${stats.workoutStreak} days`}
-                icon="🔥"
-                iconColor="bg-emerald-500 text-emerald-400"
-                trendText={stats.workoutStreak > 0 ? "Keep it going!" : "Log a lift to start"}
-                trendColor={stats.workoutStreak > 0 ? "text-emerald-400" : "text-gray-500"}
+                Icon={Flame}
+                iconClass="border-emerald-300/15 bg-emerald-400/10 text-emerald-300"
+                trendText={stats.workoutStreak > 0 ? "Keep it going" : "Log a lift to start"}
+                trendClass={stats.workoutStreak > 0 ? "text-emerald-300" : "text-zinc-500"}
             />
             <MetricCard
-                title="Weekly Volume"
+                title="Weekly volume"
                 value={`${stats.weeklyVolume} kg`}
-                icon="📊"
-                iconColor="bg-emerald-500 text-emerald-400"
-                trendIcon={hasVolume ? "↑" : null}
+                Icon={TrendingUp}
+                iconClass="border-blue-300/15 bg-blue-400/10 text-blue-300"
+                trendIcon={hasVolume}
                 trendText={hasVolume ? "This week's total" : "No lifts this week"}
-                trendColor={hasVolume ? "text-emerald-400" : "text-gray-500"}
+                trendClass={hasVolume ? "text-blue-300" : "text-zinc-500"}
             />
             <MetricCard
-                title="Recovery Score"
+                title="Recovery score"
                 value={`${stats.recoveryScore}%`}
-                icon="💚"
-                iconColor="bg-emerald-500 text-emerald-400"
+                Icon={HeartPulse}
+                iconClass="border-amber-300/15 bg-amber-300/10 text-amber-200"
                 trendText={stats.recoveryScore >= 70 ? "Good to train" : stats.recoveryScore >= 40 ? "Light session" : "Rest day"}
-                trendColor={stats.recoveryScore >= 70 ? "text-emerald-400" : stats.recoveryScore >= 40 ? "text-yellow-400" : "text-red-400"}
+                trendClass={stats.recoveryScore >= 70 ? "text-emerald-300" : stats.recoveryScore >= 40 ? "text-amber-200" : "text-red-300"}
             />
             <MetricCard
-                title="Current Weight"
+                title="Current weight"
                 value={`${hasWeight ? stats.currentWeight : '—'} kg`}
-                icon="⚖️"
-                iconColor="bg-emerald-500 text-emerald-400"
+                Icon={Scale}
+                iconClass="border-violet-300/15 bg-violet-300/10 text-violet-200"
                 trendText={hasWeight ? "Last updated" : "Update stats below"}
-                trendColor={hasWeight ? "text-emerald-400" : "text-gray-500"}
+                trendClass={hasWeight ? "text-violet-200" : "text-zinc-500"}
             />
-        </div>
+        </section>
     )
 }
 
